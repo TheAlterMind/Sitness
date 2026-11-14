@@ -1,0 +1,115 @@
+import { Button, Dialog, Grid, ProgressBar, Toast } from 'antd-mobile'
+import { api } from '../bridge'
+import { PageTitle } from '../components/PageTitle'
+import { BarChart } from '../components/BarChart'
+import { weekdayLetter } from '../format'
+import { usePoll } from '../hooks'
+
+function Tile({ value, label }: { value: string | number; label: string }) {
+  return (
+    <div className="tile">
+      <div className="stat">{value}</div>
+      <div className="caption">{label}</div>
+    </div>
+  )
+}
+
+export function Stats({ onBack }: { onBack: () => void }) {
+  const [s, refresh] = usePoll(api.getStats, null)
+  if (!s) return <div className="page" />
+
+  const maxTotal = Math.max(1, ...s.exercises.map(e => e.total))
+  const unlockedDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
+
+  const doExport = () => {
+    try { api.exportStats() } catch (e) { Dialog.alert({ title: 'Export failed', content: (e as Error).message }) }
+  }
+
+  const doReset = async () => {
+    const ok = await Dialog.confirm({
+      title: 'Reset all statistics?',
+      content: 'XP, levels, streaks, badges and history are erased. Settings are kept. This cannot be undone.',
+      confirmText: 'Erase everything',
+      cancelText: 'Cancel',
+    })
+    if (!ok) return
+    try { api.resetStats(); Toast.show({ icon: 'success', content: 'Statistics erased' }) }
+    catch (e) { Toast.show({ content: (e as Error).message }) }
+    refresh()
+  }
+
+  return (
+    <div className="page scrolling wide">
+      <PageTitle onBack={onBack}>Statistics</PageTitle>
+
+      <div className="stats-cols">
+      <div className="stats-col">
+      <section className="card">
+        <div className="caption">PROGRESS</div>
+        <div className="title">Level {s.level.level} · {s.level.title}</div>
+        <div className="dim small">{s.xp} XP total · {s.level.into} / {s.level.span} to level {s.level.level + 1}</div>
+        <ProgressBar percent={s.level.span ? (s.level.into / s.level.span) * 100 : 0} className="level-bar" />
+      </section>
+
+      <section className="card">
+        <div className="caption">AT A GLANCE</div>
+        <Grid columns={3} gap={0}>
+          <Grid.Item><Tile value={s.totalBreaks} label="BREAKS DONE" /></Grid.Item>
+          <Grid.Item><Tile value={s.minutes} label="MINUTES MOVED" /></Grid.Item>
+          <Grid.Item><Tile value={s.rate30 === null ? '—' : `${s.rate30}%`} label="30-DAY RATE" /></Grid.Item>
+          <Grid.Item><Tile value={s.streak} label="CURRENT STREAK" /></Grid.Item>
+          <Grid.Item><Tile value={s.bestStreak} label="BEST STREAK" /></Grid.Item>
+          <Grid.Item><Tile value={s.bestCombo} label="BEST COMBO" /></Grid.Item>
+          <Grid.Item><Tile value={s.glasses} label="GLASSES" /></Grid.Item>
+          <Grid.Item><Tile value={s.activeDays} label="ACTIVE DAYS" /></Grid.Item>
+          <Grid.Item><Tile value={s.badgeCount} label="BADGES" /></Grid.Item>
+        </Grid>
+      </section>
+
+      <section className="card">
+        <div className="caption">EXERCISE BALANCE</div>
+        <div className="dim small gap-b">All-time totals. Each break opens on whichever you have done least today.</div>
+        {s.exercises.map(e => {
+          const note = !e.inPool ? ' · off' : e.manualOnly ? ' · swipe only' : e.upNext ? ' · up next' : ''
+          return (
+            <div className="bar-row" key={e.id}>
+              <div className="row">
+                <span className={e.upNext ? 'accent' : ''}>{e.name}{note}</span>
+                <span className="dim small">{e.total}</span>
+              </div>
+              <div className="meter"><div className={'fill' + (e.upNext ? ' on' : '')} style={{ width: `${(e.total / maxTotal) * 100}%` }} /></div>
+            </div>
+          )
+        })}
+      </section>
+      </div>
+
+      <div className="stats-col">
+      <section className="card">
+        <div className="caption gap-b">LAST 7 DAYS</div>
+        <BarChart values={s.last7.map(d => d.completed)} labels={s.last7.map(d => weekdayLetter(d.key))} />
+      </section>
+
+      <section className="card">
+        <div className="caption">BADGES</div>
+        <div className="dim small gap-b">{s.badgeCount} of {s.badges.length}</div>
+        {s.badges.map(b => {
+          const got = b.unlockedAt > 0
+          return (
+            <div className="badge-row" key={b.id}>
+              <div className={got ? 'accent strong' : 'dim'}>{got ? '✓  ' : '·  '}{b.name}</div>
+              <div className="dim small indent">{b.description}{got ? `  ·  ${unlockedDate(b.unlockedAt)}` : ''}</div>
+            </div>
+          )
+        })}
+      </section>
+      </div>
+      </div>
+
+      <div className="stats-actions">
+        <Button block size="large" className="tonal" onClick={doExport}>Export statistics as JSON</Button>
+        <Button block fill="none" color="danger" onClick={doReset}>Reset all statistics</Button>
+      </div>
+    </div>
+  )
+}

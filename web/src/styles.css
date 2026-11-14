@@ -1,0 +1,284 @@
+/* ---------- tokens ---------- */
+:root {
+  --bg: #F4F6F7;
+  --surface: #FFFFFF;
+  --text: #111A1F;
+  --dim: #5F6E79;
+  --track: #DEE6E9;
+  --well: #E8EEF0;
+  --accent: #8E71E6;
+  --accent-text: #7960C3;    /* the accent as text: darker on light for contrast; theme.ts sets the live value */
+  --on-accent: #0B0814;
+  --outer: #E9EEF0;          /* the margin around the app on wide windows */
+
+  /* The menu bar, the Home ring's empty track and the Pause button. Light mode keeps its own greys;
+     dark mode uses one shared grey tinted with the accent (theme.ts sets the live value). */
+  --menu-bg: var(--surface);
+  --ring-track: var(--track);
+  --pause-bg: var(--well);
+
+  --adm-color-primary: var(--accent);
+  --adm-color-text-light-solid: var(--on-accent);
+  --adm-color-background: var(--bg);
+  --adm-color-box: var(--surface);
+  --adm-color-text: var(--text);
+  --adm-color-weak: var(--dim);
+  --adm-color-border: var(--track);
+  --adm-font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* Ant Design Mobile gives these a pixel fallback inside var(), which the build cannot convert;
+     stating them here makes them scale with everything else. */
+  --adm-center-popup-min-width: 280px;
+  --adm-center-popup-border-radius: 16px;
+  --adm-button-border-radius: 16px;
+}
+
+html[data-prefers-color-scheme='dark'] {
+  --bg: #0E0B17;               /* 90% black + 10% accent; theme.ts sets the live value from the accent */
+  --surface: #202023;          /* cards, lists, sheets: the control grey; theme.ts sets the live value */
+  --text: #E9E8EE;             /* near-white + 5% accent; theme.ts sets the live value */
+  --dim: #98979D;              /* mid grey + 5% accent; theme.ts sets the live value */
+  --track: #3C3B41;            /* progress-bar track, borders: 95% of #383838 + 5% accent; theme.ts sets the live value */
+  --well: #19181E;             /* icon/tonal buttons, wheel band: #131313 + 5% accent; theme.ts sets the live value */
+  --outer: #0E0B17;
+  --menu-bg: #202023;          /* 95% of #333333 + 5% accent, x0.5832; theme.ts sets the live value from the accent */
+  --ring-track: #202023;
+  --pause-bg: #202023;
+
+  --adm-color-background: var(--bg);
+  --adm-color-box: var(--surface);
+  --adm-color-text: var(--text);
+  --adm-color-weak: var(--dim);
+  --adm-color-border: var(--track);
+}
+
+/* Dark selectors (Active days): white text; selected = accent, unselected = control grey. */
+html[data-prefers-color-scheme='dark'] .adm-selector {
+  --color: var(--surface);
+  --checked-color: var(--accent);
+  --text-color: #FFFFFF;
+  --checked-text-color: #FFFFFF;
+}
+
+/* Light selectors: selected = white text on the accent. */
+html:not([data-prefers-color-scheme='dark']) .adm-selector {
+  --checked-color: var(--accent);
+  --checked-text-color: #FFFFFF;
+}
+
+/* ---------- base ---------- */
+html, body, #root { height: 100%; margin: 0; }
+body {
+  background: var(--outer);
+  color: var(--text);
+  font-family: var(--adm-font-family);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+  overscroll-behavior: none;
+}
+/* Buttons and inputs do not inherit the font by default, so the chosen font would skip them. */
+button, input, textarea, select { font-family: inherit; }
+h1 { font-size: 26px; font-weight: 500; margin: 16px 0 4px; }
+h2 { font-size: 18px; font-weight: 500; margin: 8px 0 16px; text-align: center; }
+
+.dim { color: var(--dim); }
+.small { font-size: 12px; }
+.center { text-align: center; }
+.accent { color: var(--accent-text); }
+.strong { font-weight: 600; }
+.indent { padding-left: 20px; }
+.gap-b { margin-bottom: 8px; }
+.row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.caption { font-size: 10px; letter-spacing: 0.08em; color: var(--dim); }
+.title { font-size: 22px; line-height: 1.2; }
+.big { font-size: 22px; }
+.stat { font-size: 21px; }
+
+/* The app is a centred column. Focus screens stay phone-width however wide the window is;
+   Stats and Settings use the extra room (see the wide-screen rules at the end). */
+.app { box-sizing: border-box; height: 100%; width: 100%; max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; background: var(--bg); }
+.app { padding-bottom: env(safe-area-inset-bottom, 0px); }
+.main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.page { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 18px; box-sizing: border-box; }
+.page.home, .page.break, .page.water, .page.reward { width: 100%; max-width: 560px; margin: 0 auto; }
+.page.scrolling { width: 100%; max-width: 720px; margin: 0 auto; overflow-y: auto; padding-bottom: 24px; gap: 12px; }
+.page-title { font-size: 22px; font-weight: 500; margin: 18px 0 4px; }
+.scroll { flex: 1; min-height: 0; overflow-y: auto; padding-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+
+.card { background: var(--surface); border-radius: 16px; padding: 16px; }
+
+.actions { display: flex; gap: 12px; padding: 12px 0 22px; }
+.actions.single { display: block; }
+.adm-button.tonal { --background-color: var(--well); --border-color: transparent; --text-color: var(--text); }
+.adm-button.pause { --background-color: var(--pause-bg); }
+.adm-button { --border-radius: 16px; }
+
+/* One 16px corner radius for the whole app; circles (rings, dots, round buttons) stay circles. */
+.adm-list-card .adm-list-body { border-radius: 16px; }
+.adm-toast-main { border-radius: 16px; }
+.adm-selector { --border-radius: 16px; }
+
+/* Dark theme: an off switch is filled with the same grey as its outline. */
+html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before { background: var(--adm-color-border); }
+
+.disabled { opacity: 0.4; pointer-events: none; }
+.notice { border-radius: 16px; margin-bottom: 8px; }
+
+/* ---------- home ---------- */
+.head-icons { display: flex; margin-right: -10px; }
+/* Plain icon buttons (no background), 24px icons like the old bottom menu. */
+.icon-btn { width: 44px; height: 44px; border: 0; background: none; color: var(--text); font-size: 24px; display: flex; align-items: center; justify-content: center; padding: 0; }
+/* Stays at the top while the page scrolls; spans the full width so nothing shows past its edges. */
+.page-head { position: sticky; top: 0; z-index: 5; flex: none; display: flex; align-items: center; gap: 6px; margin: 0 -18px; padding: 0 18px; height: 56px; box-sizing: border-box; width: calc(100% + 36px); background: var(--bg); color: var(--text); border: 0; font: inherit; text-align: left; cursor: pointer; }
+.page-head .back { font-size: 24px; flex: none; }
+.page-head .page-title { font-size: 22px; font-weight: 500; margin: 0; }
+/* Home header and the Stats/Settings title bar share this height, so the title sits at the same spot. */
+.head { display: flex; justify-content: space-between; align-items: center; height: 56px; box-sizing: border-box; flex: none; }
+.counter-ring { position: relative; width: 56px; height: 56px; flex: none; }
+.counter-ring > svg { width: 100%; height: 100%; display: block; }
+.counter-ring-icon { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: var(--accent); }
+/* The count sits under the ring without taking part in the layout, so the ring stays level with the main ring's centre. */
+.counter-ring-count { position: absolute; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 4px; font-size: 11px; line-height: 1; color: var(--dim); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ring-area { flex: 1; min-height: 0; display: flex; flex-direction: column; align-items: center; }
+/* The two goal rings sit in a row right under the header; the main ring takes the space below. */
+.counters { flex: none; display: flex; justify-content: center; align-items: flex-start; gap: 12px; padding: 6px 0 36px; width: 100%; }  /* 6px under the header (22px minus 16px); the extra 16px below keeps the main ring where it was */
+/* Counter chips: icon and number on a card. A tint fills the card as the goal gets closer; at the goal the card turns the accent colour. */
+/* Same size as the Break now / Pause buttons below: two equal columns, same gap, height and corner. */
+.chip-counter { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1 1 0; min-width: 0; padding: 11px 12px; box-sizing: border-box; background: var(--surface); border-radius: 16px; color: var(--accent); }
+.chip-tint { position: absolute; inset: 0 auto 0 0; background: var(--accent); opacity: 0.28; transition: width 0.4s ease; }
+.chip-icon { position: relative; display: flex; }
+.chip-num { position: relative; font-size: 18px; line-height: 27px; font-variant-numeric: tabular-nums; color: var(--text); }
+/* The ring fills the room it is given (never more than the width), so it also fits short screens. */
+/* The ring is a size container: the text inside is sized from the ring (cqw), not from the window,
+   so the text and the ring always keep the same proportions however far the window is scaled. */
+.ring-box { flex: none; margin: auto 0; height: min(calc(100% - 96px), 80vw, 420px); aspect-ratio: 1; position: relative; container-type: inline-size; }
+.ring, .vessel { width: 100%; height: 100%; display: block; }
+.ring-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+/* 19.39% of the ring's width: the proportion that looks right at 4K. The first size is a fallback
+   for a browser without container units; the floor keeps it readable on a very small ring. */
+.timer { font-size: clamp(36px, min(13vw, 9vh), 64px); font-variant-numeric: tabular-nums; }
+@supports (font-size: 1cqw) { .timer { font-size: max(1.5rem, 19.39cqw); } }
+/* A word in the timer slot ("Off hours") is smaller so it stays inside the ring. */
+.timer.long { font-size: clamp(24px, min(8vw, 5.5vh), 40px); }
+@supports (font-size: 1cqw) { .timer.long { font-size: max(1.25rem, 12cqw); } }
+.subtitle { font-size: 13px; color: var(--dim); margin-top: 6px; text-align: center; max-width: 68%; line-height: 1.3; }
+/* 3.94% of the ring's width (the 4K proportion), never below 10px at the base size so it stays legible. */
+@supports (font-size: 1cqw) { .subtitle { font-size: max(0.625rem, 3.94cqw); margin-top: 1.2cqw; } }
+
+/* ---------- break ---------- */
+.break-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 0 0; }
+.phase { font-size: 12px; color: var(--dim); }
+.icon-tile {
+  width: 38px; height: 38px; border: 0; border-radius: 16px; background: var(--well); color: var(--text);
+  display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.vessel-area { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; }
+.vessel-box { height: min(100%, 66vw, 360px); aspect-ratio: 1; position: relative; }
+.vessel-time { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: clamp(30px, min(11vw, 8vh), 52px); font-variant-numeric: tabular-nums; }
+.carousel { margin: 0 -18px; padding-bottom: 8px; }
+.carousel .card { margin: 0 6px; height: 140px; box-sizing: border-box; display: flex; flex-direction: column; gap: 8px; }
+.category { font-size: 11px; letter-spacing: 0.05em; color: var(--accent-text); }
+.ex-name { font-size: 21px; margin-top: 2px; }
+.ex-text { font-size: 13px; line-height: 1.4; }
+.dots { display: flex; justify-content: center; gap: 8px; margin: 14px 0 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--track); }
+.dot.on { background: var(--accent); }
+
+/* ---------- water ---------- */
+.water-block { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+.water-icon { color: var(--accent); }
+.stepper { display: flex; align-items: center; margin: 36px 0 28px; }
+.round {
+  width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--track); background: transparent;
+  color: var(--text); display: flex; align-items: center; justify-content: center; padding: 0;
+}
+.count { width: 120px; }
+.num { font-size: clamp(44px, min(16vw, 10vh), 60px); line-height: 1.1; font-variant-numeric: tabular-nums; }
+
+/* ---------- reward ---------- */
+.reward-check { color: var(--accent); display: flex; justify-content: center; }
+.xp { font-size: clamp(40px, min(14vw, 9vh), 56px); text-align: center; color: var(--accent-text); margin-top: 8px; font-variant-numeric: tabular-nums; }
+.line { display: flex; justify-content: space-between; padding: 7px 0; font-size: 13px; }
+.level-bar { margin-top: 12px; --track-width: 10px; --fill-color: var(--accent); --track-color: var(--track); }
+.badge-name { font-size: 16px; font-weight: 600; margin: 2px 0; }
+
+/* ---------- stats ---------- */
+.tile { display: flex; flex-direction: column; align-items: center; padding: 10px 0; text-align: center; }
+.bar-row { padding: 7px 0; font-size: 13px; }
+.meter { height: 5px; background: var(--track); margin-top: 5px; border-radius: 16px; overflow: hidden; }
+.meter .fill { height: 100%; background: var(--track); filter: brightness(0.85); }
+.meter .fill.on { background: var(--accent); filter: none; }
+.badge-row { padding: 7px 0; font-size: 14px; }
+.bar-chart { width: 100%; height: 110px; display: block; }
+
+/* ---------- time wheel ---------- */
+.wheel-sheet { background: var(--surface); border-radius: 16px 16px 0 0; padding-bottom: 16px; }
+.wheel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px 4px; }
+.wheel-title { font-size: 16px; }
+.wheel-btn { border: 0; background: none; color: var(--dim); font-size: 16px; padding: 8px 12px; }
+.wheel-btn.confirm { color: var(--accent-text); font-weight: 600; }
+.wheel-body { position: relative; display: flex; justify-content: center; align-items: center; gap: 4px; height: 220px; }
+.wheel-band { position: absolute; left: 24px; right: 24px; top: 88px; height: 44px; border-radius: 16px; background: var(--well); pointer-events: none; }
+.wheel-colon { position: relative; font-size: 24px; width: 12px; text-align: center; }
+.wheel {
+  position: relative; width: 96px; height: 220px; box-sizing: border-box; padding: 88px 0;
+  overflow-y: scroll; scroll-snap-type: y mandatory; overscroll-behavior: contain; touch-action: pan-y;
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent);
+  mask-image: linear-gradient(transparent, #000 28%, #000 72%, transparent);
+}
+.wheel { cursor: grab; outline: none; }
+.wheel.dragging { cursor: grabbing; scroll-snap-type: none; }   /* free movement while a mouse drags it */
+.wheel::-webkit-scrollbar { display: none; }
+.wheel-item { height: 44px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; font-size: 20px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.wheel-item.on { color: var(--text); font-size: 26px; }
+
+/* ---------- settings ---------- */
+.schedule { display: flex; flex-direction: column; gap: 6px; }
+.schedule-times { font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--accent-text); }
+.slider-row { padding: 6px 4px 2px; }
+.slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }
+.adm-list-card { --adm-color-box: var(--surface); }
+
+/* Slim scrollbars where the browser draws them (phones overlay their own). */
+.scroll, .page.scrolling { scrollbar-width: thin; scrollbar-color: var(--track) transparent; }
+
+/* ---------- bottom sheets stay phone-width on wide windows ---------- */
+.adm-popup-body-position-bottom { right: 0; max-width: 560px; margin-left: auto; margin-right: auto; }
+
+/* ---------- wide windows (tablet and desktop) ----------
+   These are keyed off classes on <html> (set in scale.ts) rather than @media rules, so they respond
+   to the window measured in scaled units: a large interface on a small window still goes compact. */
+html.lw .app { border-left: 1px solid var(--track); border-right: 1px solid var(--track); }
+
+/* Stats uses the room: two columns of cards. On narrower screens the columns dissolve (display: contents)
+   and the cards simply stack in their original order. Settings stays one centred column. */
+.stats-cols, .stats-col { display: contents; }
+html.lwide .page.scrolling.wide { max-width: 1040px; }
+html.lwide .stats-cols { display: flex; gap: 16px; align-items: flex-start; }
+html.lwide .stats-col { display: flex; flex-direction: column; gap: 12px; flex: 1; min-width: 0; }
+
+/* ---------- landscape phones and other short, wide screens ---------- */
+html.lshort .page.home, html.lshort .page.break { max-width: 980px; }
+
+/* Home: the ring on the left, everything else on the right. */
+html.lshort .page.home { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto; column-gap: 28px; }
+html.lshort .page.home .ring-area { grid-column: 1; grid-row: 1 / -1; }
+html.lshort .page.home .home-top { grid-column: 2; grid-row: 1; }
+html.lshort .page.home .actions { grid-column: 2; grid-row: 3; }
+html.lshort .counter-ring { width: 40px; height: 40px; }
+html.lshort .ring-box { height: min(calc(100% - 80px), 42vw, 420px); }
+html.lshort .counters { padding-top: 12px; padding-bottom: 20px; }
+
+/* Break: the vessel on the left, the exercise and Done on the right. */
+html.lshort .page.break { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: auto 1fr auto; column-gap: 28px; }
+html.lshort .page.break .break-head { grid-column: 1 / -1; }
+html.lshort .page.break .vessel-area { grid-column: 1; grid-row: 2 / 4; }
+html.lshort .page.break .carousel { grid-column: 2; grid-row: 2; align-self: center; margin: 0; }
+html.lshort .page.break .actions { grid-column: 2; grid-row: 3; }
+html.lshort .vessel-box { height: min(100%, 44vw, 360px); }
+
+html.lshort .actions { padding-bottom: 12px; }
+html.lshort .reward .scroll, html.lshort .water-block { padding-top: 8px; }
+html.lshort .stepper { margin: 16px 0; }

@@ -1,0 +1,28 @@
+/* In-app tweak panel (dev only). The .tw-root class keeps tweakbar.css effects off the panel itself. */
+.tw-root, .tw-root * { box-sizing: border-box; -webkit-user-select: none; user-select: none; }
+.tw-root { position: fixed; z-index: 2147483000; font: 12px/1.35 system-ui, sans-serif; color: #eee; }
+.tw-fab { position: fixed; left: 4px; bottom: 4px; width: 30px; height: 30px; border-radius: 50%; border: 1px solid #555; background: #222; color: #eee; font-size: 16px; padding: 0; opacity: 0.55; cursor: pointer; }
+.tw-fab:hover { opacity: 1; }
+.tw-panel { position: fixed; right: 0; top: 0; bottom: 0; width: min(340px, 100vw); display: flex; flex-direction: column; background: #17171b; border-left: 1px solid #333; box-shadow: -8px 0 24px rgba(0,0,0,.4); }
+@media (max-width: 699px) { .tw-panel { top: auto; height: 62vh; width: 100vw; border-left: 0; border-top: 1px solid #333; } .tw-fab { left: auto; right: 4px; top: 4px; bottom: auto; } }
+.tw-bar { display: flex; align-items: center; gap: 6px; padding: 8px 10px; border-bottom: 1px solid #2a2a30; }
+.tw-count { color: #999; }
+.tw-spacer { flex: 1; }
+.tw-panel button { border: 1px solid #3a3a42; background: #23232a; color: #eee; border-radius: 6px; padding: 3px 8px; font: inherit; cursor: pointer; }
+.tw-panel button:disabled { opacity: .35; cursor: default; }
+.tw-panel button.on { background: #8e71e6; border-color: #8e71e6; color: #fff; }
+.tw-note { padding: 4px 10px; background: #1f3a2a; color: #9fe0b5; }
+.tw-search { margin: 8px 10px 4px; padding: 6px 8px; border-radius: 6px; border: 1px solid #3a3a42; background: #0f0f12; color: #eee; font: inherit; -webkit-user-select: text; user-select: text; }
+.tw-tabs { display: flex; gap: 4px; padding: 4px 10px 6px; overflow-x: auto; flex: none; scrollbar-width: thin; }
+.tw-tabs button { white-space: nowrap; }
+.tw-list { flex: 1; min-height: 0; overflow-y: auto; padding: 0 10px 12px; }
+.tw-tools { display: flex; gap: 6px; padding: 4px 0 8px; }
+.tw-row { display: grid; grid-template-columns: 1fr 1.4fr; gap: 8px; align-items: center; padding: 5px 0; border-bottom: 1px solid #222228; }
+.tw-row.dirty label { color: #b9a6ff; }
+.tw-ctl { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.tw-ctl input[type=range] { flex: 1; min-width: 0; accent-color: #8e71e6; }
+.tw-ctl output { min-width: 42px; text-align: right; color: #bbb; font-variant-numeric: tabular-nums; }
+.tw-ctl select { flex: 1; min-width: 0; background: #0f0f12; color: #eee; border: 1px solid #3a3a42; border-radius: 6px; padding: 3px; font: inherit; }
+.tw-ctl input[type=color] { width: 44px; height: 24px; padding: 0; border: 1px solid #3a3a42; background: none; }
+.tw-x { padding: 0 6px !important; }
+.tw-empty { padding: 16px 0; color: #888; text-align: center; }
