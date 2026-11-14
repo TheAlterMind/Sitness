@@ -1,7 +1,9 @@
-import { Button, Dialog, Grid, ProgressBar, Toast } from 'antd-mobile'
+import { Button, Dialog, Grid, ProgressBar } from 'antd-mobile'
 import { api } from '../bridge'
 import { PageTitle } from '../components/PageTitle'
 import { BarChart } from '../components/BarChart'
+import { CheckCircleIcon } from '../components/Icons'
+import { confirmResetStats } from '../resetStats'
 import { weekdayLetter } from '../format'
 import { usePoll } from '../hooks'
 
@@ -25,18 +27,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
     try { api.exportStats() } catch (e) { Dialog.alert({ title: 'Export failed', content: (e as Error).message }) }
   }
 
-  const doReset = async () => {
-    const ok = await Dialog.confirm({
-      title: 'Reset all statistics?',
-      content: 'XP, levels, streaks, badges and history are erased. Settings are kept. This cannot be undone.',
-      confirmText: 'Erase everything',
-      cancelText: 'Cancel',
-    })
-    if (!ok) return
-    try { api.resetStats(); Toast.show({ icon: 'success', content: 'Statistics erased' }) }
-    catch (e) { Toast.show({ content: (e as Error).message }) }
-    refresh()
-  }
+  const doReset = () => confirmResetStats(refresh)
 
   return (
     <div className="page scrolling wide">
@@ -44,8 +35,13 @@ export function Stats({ onBack }: { onBack: () => void }) {
 
       <div className="stats-cols">
       <div className="stats-col">
-      <section className="card">
-        <div className="caption">PROGRESS</div>
+      <section className="card hero">
+        <div className="caption">CURRENT STREAK</div>
+        <div className="hero-row">
+          <span className="hero-num">{s.streak}</span>
+          <span className="hero-unit">{s.streak === 1 ? 'day' : 'days'}</span>
+          <span className="dim small hero-best">Best {s.bestStreak}</span>
+        </div>
         <div className="title">Level {s.level.level} · {s.level.title}</div>
         <div className="dim small">{s.xp} XP total · {s.level.into} / {s.level.span} to level {s.level.level + 1}</div>
         <ProgressBar percent={s.level.span ? (s.level.into / s.level.span) * 100 : 0} className="level-bar" />
@@ -57,12 +53,9 @@ export function Stats({ onBack }: { onBack: () => void }) {
           <Grid.Item><Tile value={s.totalBreaks} label="BREAKS DONE" /></Grid.Item>
           <Grid.Item><Tile value={s.minutes} label="MINUTES MOVED" /></Grid.Item>
           <Grid.Item><Tile value={s.rate30 === null ? '—' : `${s.rate30}%`} label="30-DAY RATE" /></Grid.Item>
-          <Grid.Item><Tile value={s.streak} label="CURRENT STREAK" /></Grid.Item>
-          <Grid.Item><Tile value={s.bestStreak} label="BEST STREAK" /></Grid.Item>
           <Grid.Item><Tile value={s.bestCombo} label="BEST COMBO" /></Grid.Item>
           <Grid.Item><Tile value={s.glasses} label="GLASSES" /></Grid.Item>
           <Grid.Item><Tile value={s.activeDays} label="ACTIVE DAYS" /></Grid.Item>
-          <Grid.Item><Tile value={s.badgeCount} label="BADGES" /></Grid.Item>
         </Grid>
       </section>
 
@@ -97,8 +90,13 @@ export function Stats({ onBack }: { onBack: () => void }) {
           const got = b.unlockedAt > 0
           return (
             <div className="badge-row" key={b.id}>
-              <div className={got ? 'accent strong' : 'dim'}>{got ? '✓  ' : '·  '}{b.name}</div>
-              <div className="dim small indent">{b.description}{got ? `  ·  ${unlockedDate(b.unlockedAt)}` : ''}</div>
+              <span className={got ? 'badge-mark earned' : 'badge-mark'} aria-hidden="true">
+                {got ? <CheckCircleIcon size={18} /> : <span className="badge-empty" />}
+              </span>
+              <div>
+                <div className={got ? 'accent strong' : 'dim'}>{b.name}<span className="sr-only">{got ? ', earned' : ', locked'}</span></div>
+                <div className="dim small">{b.description}{got ? `  ·  ${unlockedDate(b.unlockedAt)}` : ''}</div>
+              </div>
             </div>
           )
         })}

@@ -209,7 +209,16 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .meter { height: 5px; background: var(--track); margin-top: 5px; border-radius: 16px; overflow: hidden; }
 .meter .fill { height: 100%; background: var(--track); filter: brightness(0.85); }
 .meter .fill.on { background: var(--accent); filter: none; }
-.badge-row { padding: 7px 0; font-size: 14px; }
+.badge-row { display: flex; align-items: flex-start; gap: 10px; padding: 7px 0; font-size: 14px; }
+.badge-mark { flex: none; width: 18px; height: 21px; display: flex; align-items: center; justify-content: center; color: var(--dim); }
+.badge-mark.earned { color: var(--accent); }
+.badge-empty { width: 14px; height: 14px; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--track); }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* The streak is the headline of the Stats page. */
+.hero-row { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 10px; }
+.hero-num { font-size: 56px; line-height: 1; font-weight: 500; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+.hero-unit { font-size: 18px; color: var(--text); }
+.hero-best { margin-left: auto; }
 .bar-chart { width: 100%; height: 110px; display: block; }
 
 /* ---------- time wheel ---------- */

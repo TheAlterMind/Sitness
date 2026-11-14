@@ -5,6 +5,7 @@ import { PageTitle } from '../components/PageTitle'
 import { TimeWheelPopup } from '../components/TimeWheel'
 import { daySlots, minuteOfDay } from '../format'
 import { FONT_CHOICES, getUserFont, setUserFont } from '../fonts'
+import { confirmResetStats } from '../resetStats'
 import { SCALE_CHOICES, getUserScale, setUserScale } from '../scale'
 import { GROUPS, labelFor } from '../settingsSchema'
 import type { ActionId, Item } from '../settingsSchema'
@@ -97,10 +98,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
       switch (id) {
         case 'exact_alarm': case 'battery': case 'notifications': api.openSystem(id); break
         case 'export': api.exportStats(); break
-        case 'reset_stats':
-          void confirmThen('Reset all statistics?', 'XP, levels, streaks and badges are erased. Settings are kept.', 'Erase',
-            () => { api.resetStats(); Toast.show({ icon: 'success', content: 'Statistics erased' }) })
-          break
+        case 'reset_stats': void confirmResetStats(); break
         case 'reset_settings':
           void confirmThen('Reset all settings?', 'Everything returns to the defaults, including the font and interface size. Your statistics are kept.', 'Reset',
             () => {
