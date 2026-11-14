@@ -40,7 +40,16 @@ export function Home({ state: s, refresh, onOpen }: Props) {
         { text: '1 hour', key: '60', onClick: pick('60') },
         { text: '2 hours', key: '120', onClick: pick('120') },
         { text: 'Rest of today', key: 'day', onClick: pick('day') },
-        { text: 'Indefinitely', key: 'off', danger: true, onClick: () => { handler.close(); attempt(() => api.setEnabled(false), refresh) } },
+        {
+          text: 'Turn off reminders', key: 'off', danger: true, description: 'Nothing until you turn them back on',
+          onClick: () => {
+            handler.close()
+            attempt(() => {
+              api.setEnabled(false)
+              Toast.show({ content: 'Reminders are off. Tap Turn on to start again.' })
+            }, refresh)
+          },
+        },
       ],
     })
   }
