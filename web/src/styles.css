@@ -235,7 +235,12 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .help-item { padding: 10px 0; border-top: 1px solid var(--track); }
 .help-term { color: var(--accent-text); font-size: 15px; margin-bottom: 2px; }
 .help-text { color: var(--text); font-size: 14px; line-height: 1.45; }
-.help-close { margin-top: 14px; width: 100%; height: 48px; border: 0; border-radius: 16px; background: var(--accent); color: #fff; font: inherit; font-size: 17px; }
+/* On a short screen (landscape) the items go into two columns, and the button stays pinned so it is always reachable */
+html.lshort .help-items { column-count: 2; column-gap: 28px; }
+html.lshort .help-item { break-inside: avoid; }
+.help-foot { position: sticky; bottom: -20px; margin: 0 -20px -20px; padding: 12px 20px 20px; background: var(--bg); }
+.nowrap { white-space: nowrap; }
+.help-close { width: 100%; height: 48px; border: 0; border-radius: 16px; background: var(--accent); color: #fff; font: inherit; font-size: 17px; }
 .hero-row { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 10px; }
 .hero-num { font-size: 56px; line-height: 1; font-weight: 500; color: var(--accent-text); font-variant-numeric: tabular-nums; }
 .hero-unit { font-size: 18px; color: var(--text); }
@@ -279,8 +284,9 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .schedule-times { font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--accent-text); }
 .slider-row { padding: 6px 4px 2px; }
 /* After release the thumb glides to its step; during a drag there is no transition so it tracks the finger */
-/* Dark theme only: the unfilled part of the track was nearly invisible on the card */
+/* The unfilled part of the track was nearly invisible on the card, in both themes */
 html[data-prefers-color-scheme='dark'] .slider-row .adm-slider-track { background: rgba(255, 255, 255, 0.22); }
+html:not([data-prefers-color-scheme='dark']) .slider-row .adm-slider-track { background: var(--track); }
 .slider-row.settling .adm-slider-thumb-container { transition: left 0.2s ease-out; }
 .slider-row.settling .adm-slider-fill { transition: width 0.2s ease-out; }
 .slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }

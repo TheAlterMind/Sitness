@@ -14,13 +14,17 @@ export function HelpSheet({ visible, onClose }: { visible: boolean; onClose: () 
     <Popup visible={visible} onMaskClick={onClose} bodyStyle={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
       <div className="help-sheet" role="dialog" aria-label="How it works">
         <div className="help-title">How it works</div>
-        {ITEMS.map(i => (
-          <div className="help-item" key={i.term}>
-            <div className="help-term">{i.term}</div>
-            <div className="help-text">{i.text}</div>
-          </div>
-        ))}
-        <button className="help-close" onClick={onClose}>Got it</button>
+        <div className="help-items">
+          {ITEMS.map(i => (
+            <div className="help-item" key={i.term}>
+              <div className="help-term">{i.term}</div>
+              <div className="help-text">{i.text}</div>
+            </div>
+          ))}
+        </div>
+        <div className="help-foot">
+          <button className="help-close" onClick={onClose}>Got it</button>
+        </div>
       </div>
     </Popup>
   )
