@@ -47,18 +47,32 @@ Notification permission is requested automatically.
 
 ## The three screens of a break
 
-**Home** — a large ring filling toward the next break, with the countdown in the
-middle and a contextual line beneath it that says whatever matters most: your
-combo, how close the next level is, or how many breaks are left to protect your
-streak. Two small progress rings sit either side of the main ring: breaks today (clock)
-and water today (cup), read-only, no numbers. The top right has two icons that open Stats
-and Settings; there is no bottom menu. Stats and Settings keep their title bar (back arrow and
-name) pinned at the top while you scroll; tapping anywhere on it, or using the system Back
-gesture, returns to Home. Two buttons at
-the bottom: Break now, and Pause. Pause opens a sheet: 30 minutes, 1 hour, 2 hours, rest of
-today, or Indefinitely (reminders off). While paused the button reads Resume; while off, Turn on.
+**Home** — a header with your level and title, and a large ring filling toward the next
+break, with the countdown in the middle and a contextual line beneath it that says whatever
+matters most: your combo, how close the next level is, or how many breaks are left to protect
+your streak. Outside your hours the ring reads "Off hours" and the line gives the next break
+time. Two chips sit just under the header, each the same size as the buttons below: breaks
+today (clock) and water today (cup), icon plus number, with a soft accent fill that grows
+towards the daily goal. Two buttons at the bottom: Break now, and Pause. Pause opens a sheet:
+30 minutes, 1 hour, 2 hours, rest of today, or Turn off reminders (nothing until you turn them
+back on). While paused the ring says Paused with when it ends ("until 14:30", or "until
+tomorrow"), and the button reads Resume; while off, it reads Turn on.
 
-**Break** — a vessel that fills with liquid as the five minutes elapse. Below it, a
+**Moving between screens.** Stats sits to the left of Home and Settings to the right, in the
+same order as the header icons (a **?** for the short "How it works" sheet, then Stats, then
+Settings). There is no bottom menu. Every switch follows that layout: the screen slides in from
+the side where it sits (Settings from the right, Stats from the left) and the old one leaves
+the opposite way.
+
+- On Home, **swipe left** for Settings and **swipe right** for Stats.
+- The way back is the opposite swipe (swipe right on Settings, swipe left on Stats), the back
+  arrow, a tap anywhere on the pinned title bar, or the system Back gesture.
+- Swipes starting within 24px of a screen edge are left to Android's own back gesture, and a drag
+  that starts on a slider, a selector or inside a sheet is never taken for a screen swipe.
+- The header icons stay, so every screen is reachable without swiping. With "reduce motion" on,
+  screens switch without sliding.
+
+**Break** — a vessel that fills with liquid as the break elapses (five minutes by default). Below it, a
 swipeable card carrying one exercise. The break opens on whichever exercise you
 have done least today; swipe left or right to pick a different one. Pause and skip
 are icons at the top. Done is a single button at the bottom.
@@ -67,6 +81,13 @@ are icons at the top. Done is a single button at the bottom.
 
 **Reward** — XP counts up from zero, an itemised breakdown shows where it came
 from, the level bar animates, and any badges you just unlocked appear as cards.
+
+**Stats** — a hero card with the current streak (and your best), your level and title, and the
+XP to the next level; six tiles (breaks done, average per active day, 30-day rate, best combo,
+glasses, active days); exercise balance; the last seven days; and the badges, each with a mark
+for earned or locked. Below are Export (a JSON copy) and Reset, which uses the same confirmation
+as the one in Settings. A **?** on the hero card, and on Home, opens a short "How it works" sheet
+that explains the rings, XP and levels, combo and streak.
 
 ---
 
@@ -122,6 +143,11 @@ streaks, combos, hydration, variety and the floor exercise.
 60-minute interval, 5-minute break, 09:55–17:55, Monday to Friday, 8 breaks a day,
 8 glasses of water, standard scoring, violet accent, system theme.
 
+**Limits the sliders enforce** (the app enforces them too, and a value saved under older limits
+is brought back inside when it is read): remind every 15–60 minutes in steps of 5, break length
+1–15 minutes, snooze length 1–30 minutes. A start of day equal to the end of day means all day,
+and Settings then shows "All day" instead of a range.
+
 **Dark theme colours.** Both follow the accent (computed in `web/src/theme.ts`; light mode is unchanged):
 
 - *Page background* = 90% black + 10% accent.
@@ -157,7 +183,14 @@ The default 09:55–17:55 at 60 minutes gives nine breaks a day (09:55 … 17:55
 leaves one free miss. Each break uses part of its hour (the break itself, then water and the
 reward screen), so the countdown after one starts a few minutes short of 60.
 
-Thirty-two settings in six groups, plus shortcuts for reliability and data; see **Settings** in the app.
+Settings are in collapsible groups (Rhythm, How it alerts you, During the break, Water, Goals and
+scoring, Appearance, Reliability, Data; one open at a time, Rhythm first). A line pinned under the
+title shows the effect of the interval and the day's hours as you change them, and a row that
+depends on another says which setting to turn on. Sliders follow your finger smoothly and show
+the nearest step as a live number; on release the thumb glides to that step and the value is
+saved. Appearance also holds Interface size and Font (each option shown in its own typeface).
+Where a setting is off, the rows that depend on it are dimmed, marked disabled for screen
+readers and switched off, but still readable.
 
 ---
 
@@ -191,12 +224,17 @@ app/src/main/java/com/sitness/app/
   ThemeUtil.kt           Light / dark / system
 
 web/src/
-  App.tsx                Picks the screen from the app's state; Back handling
+  App.tsx                Picks the screen from the app's state; Back handling; the slide between
+                         Stats, Home and Settings (one order for taps, swipes and Back)
   bridge.ts              Typed wrapper over the Native bridge (mock in a browser)
   mock.ts                Stand-in for the app so the UI runs in a plain browser
   screens/               Home, Break, Water, Reward, Stats, Settings
   settingsSchema.ts      The settings screen, described as data
-  components/            Ring, Vessel (animated), BarChart, icons
+  swipe.ts               Horizontal screen swipes (edge guard, ignores sliders and sheets)
+  errors.ts              Plain-language messages for failed calls; the raw error goes to the console
+  resetStats.ts          The one "reset statistics" flow, shared by Stats and Settings
+  fonts.ts, scale.ts     Font and interface-size preferences (kept on the page, per device)
+  components/            Ring, Vessel (animated), BarChart, ChipCounter, HelpSheet, icons
   theme.ts, styles.css   Accent colours, light/dark tokens
 ```
 
@@ -226,7 +264,7 @@ spacing, the ring and the vessel. `web/src/scale.ts` sets the root font size fro
 - above that it grows with the window (2% of its height, limited by 4.4% of its width, at most
   96px), so a 1440p screen gets about 1.8× and a 4K screen about 2.7×.
 
-**Settings → Display → Interface size** (Smaller, Automatic, Larger, Largest) multiplies the automatic
+**Settings → Appearance → Interface size** (Smaller, Automatic, Larger, Largest) multiplies the automatic
 size, for example on a 4K screen that already has its own scaling. It is remembered on that device only.
 
 The layout switches (`lw` framed column, `lwide` two-column Stats, `lshort` side-by-side Home and
@@ -250,7 +288,7 @@ add a bridge method, add it in three places: `NativeBridge.kt`, `bridge.ts`, and
 
 ## Tests
 
-Scheduling, day and level arithmetic have plain JVM unit tests in `app/src/test`. The
+Scheduling, day and level arithmetic, and the setting limits have plain JVM unit tests in `app/src/test`. The
 web side is type-checked by `npm run build` (or `npm run typecheck`).
 From Android Studio, right-click the `test` folder and choose Run, or from a terminal:
 
@@ -277,6 +315,8 @@ generate the wrapper.)
 - Statistics are on-device only. Export writes a JSON copy to share, but there is no
   import yet. Android's own backup (`allowBackup`) may restore statistics after a
   reinstall or on a new phone; uninstalling by itself does not guarantee they are erased.
+- Screen swipes are for touch only. With a mouse, use the header icons and the back arrow; mouse
+  and pen drags on a slider thumb work as usual.
 - The vessel animates only while the page is visible; the WebView is paused whenever the
   app is in the background, so it costs nothing when you are not looking at it.
 - The screens need Android System WebView (present on every normal Android phone). Very
