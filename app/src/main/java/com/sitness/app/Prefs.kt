@@ -66,9 +66,14 @@ object Prefs {
     fun sp(c: Context): SharedPreferences =
         c.applicationContext.getSharedPreferences(c.applicationContext.packageName + "_preferences", Context.MODE_PRIVATE)
 
+    /** Allowed values, shared by the page's sliders (via SettingsSpec) and the reads below, so a value saved under older limits is brought back inside. */
+    val INTERVAL_RANGE = 15..60
+    val BREAK_RANGE = 1..15
+    val SNOOZE_RANGE = 1..30
+
     fun enabled(c: Context) = sp(c).getBoolean(ENABLED, true)
-    fun interval(c: Context) = sp(c).getInt(INTERVAL, 60).coerceAtLeast(5)
-    fun breakMinutes(c: Context) = sp(c).getInt(BREAK_MINUTES, 5).coerceAtLeast(1)
+    fun interval(c: Context) = sp(c).getInt(INTERVAL, 60).coerceIn(INTERVAL_RANGE)
+    fun breakMinutes(c: Context) = sp(c).getInt(BREAK_MINUTES, 5).coerceIn(BREAK_RANGE)
     fun dayStart(c: Context) = sp(c).getInt(DAY_START, 9 * 60 + 55)    // 09:55
     fun dayEnd(c: Context) = sp(c).getInt(DAY_END, 17 * 60 + 55)       // 17:55
 
@@ -86,7 +91,7 @@ object Prefs {
     fun nudge(c: Context) = sp(c).getBoolean(NUDGE, true)
     fun nudgeAfter(c: Context) = sp(c).getInt(NUDGE_AFTER, 5).coerceAtLeast(1)
     fun nudgeMax(c: Context) = sp(c).getInt(NUDGE_MAX, 2)
-    fun snooze(c: Context) = sp(c).getInt(SNOOZE, 10).coerceAtLeast(1)
+    fun snooze(c: Context) = sp(c).getInt(SNOOZE, 10).coerceIn(SNOOZE_RANGE)
     fun snoozeMax(c: Context) = sp(c).getInt(SNOOZE_MAX, 3)
 
     fun autoStart(c: Context) = sp(c).getBoolean(AUTO_START, true)
