@@ -249,7 +249,7 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 /* ---------- settings ---------- */
 .schedule { display: flex; flex-direction: column; gap: 6px; }
 /* The schedule summary stays pinned under the title while the settings scroll. */
-.schedule-bar { position: sticky; top: 56px; z-index: 4; flex: none; margin: 0 -18px; padding: 8px 34px; width: calc(100% + 36px); box-sizing: border-box; background: var(--bg); color: var(--accent-text); font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--track); }  /* 34px = page padding 18 + card padding 16, so the text lines up with the card below */
+.schedule-bar { position: sticky; top: 56px; z-index: 4; flex: none; margin: 0 -18px; padding: 8px 34px; width: calc(100% + 36px); box-sizing: border-box; background: var(--bg); color: var(--accent-text); font-size: 17px; font-weight: 400; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--track); }  /* 34px = page padding 18 + card padding 16, so the text lines up with the card below */
 .font-sheet { padding: 8px 0 16px; max-height: 70vh; overflow-y: auto; }
 .font-sheet-title { padding: 8px 16px 4px; font-size: 17px; font-weight: 500; }
 /* The settings groups are one card of collapsible sections. */
