@@ -11,12 +11,14 @@ import { Water } from './screens/Water'
 
 type Tab = 'home' | 'stats' | 'settings'
 const TAB_KEY = 'sitness.tab'
+/** A saved Stats or Settings screen is only restored if it was left this recently (a rotation or a quick app switch). Otherwise the app opens on Home. */
+const TAB_RESTORE_MS = 2 * 60 * 1000
 
 function savedTab(): Tab {
   try {
-    const t = localStorage.getItem(TAB_KEY)
-    if (t === 'stats' || t === 'settings') return t
-  } catch { /* storage unavailable */ }
+    const saved = JSON.parse(localStorage.getItem(TAB_KEY) ?? 'null') as { tab?: string; at?: number } | null
+    if (saved && (saved.tab === 'stats' || saved.tab === 'settings') && typeof saved.at === 'number' && Date.now() - saved.at < TAB_RESTORE_MS) return saved.tab
+  } catch { /* storage unavailable or an old value: open on Home */ }
   return 'home'
 }
 
@@ -26,8 +28,17 @@ export function App() {
 
   const choose = (t: Tab) => {
     setTab(t)
-    try { localStorage.setItem(TAB_KEY, t) } catch { /* storage unavailable */ }
+    try { localStorage.setItem(TAB_KEY, JSON.stringify({ tab: t, at: Date.now() })) } catch { /* storage unavailable */ }
   }
+
+  // While a sub-screen is open, keep refreshing the saved time, so "left recently" means the page was still alive a moment ago,
+  // not how long ago the screen was opened.
+  useEffect(() => {
+    if (tab === 'home') return
+    const save = () => { try { localStorage.setItem(TAB_KEY, JSON.stringify({ tab, at: Date.now() })) } catch { /* storage unavailable */ } }
+    const id = window.setInterval(save, 5000)
+    return () => window.clearInterval(id)
+  }, [tab])
 
   // Follow the user's accent and light/dark choice (the native side resolves "system").
   useEffect(() => {
