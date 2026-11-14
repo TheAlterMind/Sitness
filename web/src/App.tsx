@@ -10,6 +10,9 @@ import { Stats } from './screens/Stats'
 import { Water } from './screens/Water'
 
 type Tab = 'home' | 'stats' | 'settings'
+/** Where each screen "sits": Stats to the left of Home, Settings to the right (the header icons show the same order). */
+const POSITION: Record<Tab, number> = { stats: 0, home: 1, settings: 2 }
+const SLIDE_MS = 320
 const TAB_KEY = 'sitness.tab'
 /** A saved Stats or Settings screen is only restored if it was left this recently (a rotation or a quick app switch). Otherwise the app opens on Home. */
 const TAB_RESTORE_MS = 2 * 60 * 1000
@@ -26,7 +29,17 @@ export function App() {
   const [state, refresh] = usePoll(api.getState, 1000)
   const [tab, setTab] = useState<Tab>(savedTab)
 
+  // The screen that is leaving, and the side the new one comes in from. The new screen always enters from the
+  // side where it sits, and the old one leaves towards the opposite side, whatever caused the switch.
+  const [slide, setSlide] = useState<{ from: Tab; enter: 'left' | 'right' } | null>(null)
+  const slideTimer = useRef<number>()
+
   const choose = (t: Tab) => {
+    if (t !== tab && !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+      setSlide({ from: tab, enter: POSITION[t] > POSITION[tab] ? 'right' : 'left' })
+      window.clearTimeout(slideTimer.current)
+      slideTimer.current = window.setTimeout(() => setSlide(null), SLIDE_MS)
+    }
     setTab(t)
     try { localStorage.setItem(TAB_KEY, JSON.stringify({ tab: t, at: Date.now() })) } catch { /* storage unavailable */ }
   }
@@ -65,12 +78,17 @@ export function App() {
   if (flow === 'water') return <div className="app"><Water refresh={refresh} /></div>
   if (flow === 'reward') return <div className="app"><Reward refresh={refresh} /></div>
 
+  const screen = (t: Tab) => {
+    if (t === 'home') return <Home state={state} refresh={refresh} onOpen={choose} />
+    if (t === 'stats') return <Stats onBack={() => choose('home')} />
+    return <SettingsScreen onChanged={refresh} onBack={() => choose('home')} />
+  }
+
   return (
     <div className="app">
-      <main className="main">
-        {tab === 'home' && <Home state={state} refresh={refresh} onOpen={choose} />}
-        {tab === 'stats' && <Stats onBack={() => choose('home')} />}
-        {tab === 'settings' && <SettingsScreen onChanged={refresh} onBack={() => choose('home')} />}
+      <main className={`main${slide ? ' sliding' : ''}`}>
+        {slide && <div key={`out-${slide.from}`} className={`screen out-${slide.enter === 'right' ? 'left' : 'right'}`}>{screen(slide.from)}</div>}
+        <div key={tab} className={`screen${slide ? ` in-${slide.enter}` : ''}`}>{screen(tab)}</div>
       </main>
     </div>
   )

@@ -1,3 +1,4 @@
+import { useRef } from 'react'
 import { ActionSheet, Button, NoticeBar, Toast } from 'antd-mobile'
 import { HistogramOutline, SetOutline } from 'antd-mobile-icons'
 import { api } from '../bridge'
@@ -67,8 +68,29 @@ export function Home({ state: s, refresh, onOpen }: Props) {
     } catch (e) { Toast.show({ content: (e as Error).message }) }
   }
 
+  // Swipe right for Stats, swipe left for Settings (the header icons are hard to reach one-handed).
+  // Starts near a screen edge are left alone: Android uses those for its own back gesture.
+  const swipe = useRef<{ x: number; y: number; t: number } | null>(null)
+  const onTouchStart = (e: React.TouchEvent) => {
+    const p = e.touches[0]
+    const edge = 24
+    swipe.current = e.touches.length === 1 && p.clientX > edge && p.clientX < window.innerWidth - edge
+      ? { x: p.clientX, y: p.clientY, t: Date.now() }
+      : null
+  }
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const s = swipe.current
+    swipe.current = null
+    if (!s) return
+    const p = e.changedTouches[0]
+    const dx = p.clientX - s.x
+    const dy = p.clientY - s.y
+    if (Date.now() - s.t > 700 || Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return
+    onOpen(dx < 0 ? 'settings' : 'stats')
+  }
+
   return (
-    <div className="page home">
+    <div className="page home" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={() => { swipe.current = null }}>
       <div className="home-top">
       <header className="head">
         <div>

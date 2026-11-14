@@ -101,8 +101,21 @@ h2 { font-size: 18px; font-weight: 500; margin: 8px 0 16px; text-align: center; 
 .app { box-sizing: border-box; height: 100%; width: 100%; max-width: 1080px; margin: 0 auto; display: flex; flex-direction: column; background: var(--bg); }
 .app { padding-bottom: env(safe-area-inset-bottom, 0px); }
 .main { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+/* Screen changes: the new screen slides in from the side where it sits (Stats left, Settings right) */
+.main.sliding { position: relative; overflow: hidden; }
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.screen.out-left, .screen.out-right { position: absolute; inset: 0; pointer-events: none; }
+.screen.in-right { animation: slide-in-right 0.32s cubic-bezier(0.22, 0.8, 0.24, 1); }
+.screen.in-left { animation: slide-in-left 0.32s cubic-bezier(0.22, 0.8, 0.24, 1); }
+.screen.out-left { animation: slide-out-left 0.32s cubic-bezier(0.22, 0.8, 0.24, 1) forwards; }
+.screen.out-right { animation: slide-out-right 0.32s cubic-bezier(0.22, 0.8, 0.24, 1) forwards; }
+@keyframes slide-in-right { from { transform: translateX(100%); } to { transform: none; } }
+@keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: none; } }
+@keyframes slide-out-left { from { transform: none; } to { transform: translateX(-100%); } }
+@keyframes slide-out-right { from { transform: none; } to { transform: translateX(100%); } }
 .page { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 18px; box-sizing: border-box; }
 .page.home, .page.break, .page.water, .page.reward { width: 100%; max-width: 560px; margin: 0 auto; }
+.page.home { touch-action: pan-y; } /* horizontal swipes belong to the app (Stats / Settings), not the browser */
 .page.scrolling { width: 100%; max-width: 720px; margin: 0 auto; overflow-y: auto; padding-bottom: 24px; gap: 12px; }
 .page-title { font-size: 22px; font-weight: 500; margin: 18px 0 4px; }
 .scroll { flex: 1; min-height: 0; overflow-y: auto; padding-top: 24px; display: flex; flex-direction: column; gap: 12px; }
