@@ -18,8 +18,8 @@ object SettingsSpec {
 
     private val KINDS: Map<String, Kind> = mapOf(
         Prefs.ENABLED to Bool,
-        Prefs.INTERVAL to Num(5, 180),
-        Prefs.BREAK_MINUTES to Num(1, 30),
+        Prefs.INTERVAL to Num(15, 60),
+        Prefs.BREAK_MINUTES to Num(1, 15),
         Prefs.DAY_START to Num(0, 1439),
         Prefs.DAY_END to Num(0, 1439),
         Prefs.ACTIVE_DAYS to Multi(setOf("1", "2", "3", "4", "5", "6", "7")),
@@ -32,7 +32,7 @@ object SettingsSpec {
         Prefs.NUDGE to Bool,
         Prefs.NUDGE_AFTER to Num(1, 30),
         Prefs.NUDGE_MAX to Num(0, 5),
-        Prefs.SNOOZE to Num(1, 60),
+        Prefs.SNOOZE to Num(1, 30),
         Prefs.SNOOZE_MAX to Num(0, 10),
 
         Prefs.AUTO_START to Bool,
