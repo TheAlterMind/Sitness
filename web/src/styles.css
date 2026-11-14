@@ -257,6 +257,9 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .settings-groups .adm-list { --border-top: none; --border-bottom: none; }
 .schedule-times { font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--accent-text); }
 .slider-row { padding: 6px 4px 2px; }
+/* After release the thumb glides to its step; during a drag there is no transition so it tracks the finger */
+.slider-row.settling .adm-slider-thumb-container { transition: left 0.2s ease-out; }
+.slider-row.settling .adm-slider-fill { transition: width 0.2s ease-out; }
 .slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }
 .adm-list-card { --adm-color-box: var(--surface); }
 
