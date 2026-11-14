@@ -90,7 +90,7 @@ h2 { font-size: 18px; font-weight: 500; margin: 8px 0 16px; text-align: center; 
 .indent { padding-left: 20px; }
 .gap-b { margin-bottom: 8px; }
 .row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.caption { font-size: 10px; letter-spacing: 0.08em; color: var(--dim); }
+.caption { font-size: 12px; letter-spacing: 0.08em; color: var(--dim); }
 .title { font-size: 22px; line-height: 1.2; }
 .big { font-size: 22px; }
 .stat { font-size: 21px; }
