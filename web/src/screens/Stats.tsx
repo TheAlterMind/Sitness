@@ -51,7 +51,7 @@ export function Stats({ onBack }: { onBack: () => void }) {
         <div className="caption">AT A GLANCE</div>
         <Grid columns={3} gap={0}>
           <Grid.Item><Tile value={s.totalBreaks} label="BREAKS DONE" /></Grid.Item>
-          <Grid.Item><Tile value={s.minutes} label="MINUTES MOVED" /></Grid.Item>
+          <Grid.Item><Tile value={s.activeDays ? (s.totalBreaks / s.activeDays).toFixed(1) : '—'} label="AVG PER DAY" /></Grid.Item>
           <Grid.Item><Tile value={s.rate30 === null ? '—' : `${s.rate30}%`} label="30-DAY RATE" /></Grid.Item>
           <Grid.Item><Tile value={s.bestCombo} label="BEST COMBO" /></Grid.Item>
           <Grid.Item><Tile value={s.glasses} label="GLASSES" /></Grid.Item>
