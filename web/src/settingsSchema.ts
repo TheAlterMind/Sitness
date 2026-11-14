@@ -40,7 +40,7 @@ export const GROUPS: Group[] = [
       { kind: 'slider', key: 'interval_minutes', title: 'Remind me every', desc: 'Breaks land on fixed times, counted from your start of day', min: 5, max: 180, step: 5, unit: 'min' },
       { kind: 'slider', key: 'break_minutes', title: 'Break length', desc: 'Minutes per break', min: 1, max: 30, unit: 'min' },
       { kind: 'time', key: 'day_start', title: 'Start of day' },
-      { kind: 'time', key: 'day_end', title: 'End of day' },
+      { kind: 'time', key: 'day_end', title: 'End of day', desc: 'Same as the start means all day' },
       { kind: 'multi', key: 'active_days', title: 'Active days', desc: 'Days the schedule runs', options: DAYS, columns: 4 },
     ],
   },

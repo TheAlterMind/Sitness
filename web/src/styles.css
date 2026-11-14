@@ -236,6 +236,11 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 
 /* ---------- settings ---------- */
 .schedule { display: flex; flex-direction: column; gap: 6px; }
+/* The schedule summary stays pinned under the title while the settings scroll. */
+.schedule-bar { position: sticky; top: 56px; z-index: 4; flex: none; margin: 0 -18px; padding: 8px 18px; width: calc(100% + 36px); box-sizing: border-box; background: var(--bg); color: var(--accent-text); font-size: 14px; font-variant-numeric: tabular-nums; border-bottom: 1px solid var(--track); }
+/* The settings groups are one card of collapsible sections. */
+.settings-groups { background: var(--surface); border-radius: 16px; overflow: hidden; flex: none; --adm-color-background: var(--surface); }
+.settings-groups .adm-list { --border-top: none; --border-bottom: none; }
 .schedule-times { font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--accent-text); }
 .slider-row { padding: 6px 4px 2px; }
 .slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }

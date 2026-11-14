@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { Dialog, List, Picker, Selector, Slider, Switch, Toast } from 'antd-mobile'
+import { Collapse, Dialog, List, Picker, Selector, Slider, Switch, Toast } from 'antd-mobile'
 import { api } from '../bridge'
 import { PageTitle } from '../components/PageTitle'
 import { TimeWheelPopup } from '../components/TimeWheel'
@@ -46,6 +46,9 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const slots = daySlots(s.day_start, s.day_end, s.interval_minutes)
   const shown = slots.slice(0, 10).map(m => minuteOfDay(m, use24h))
   const schedule = shown.join(' · ') + (slots.length > shown.length ? ` · … (${slots.length} a day)` : '')
+
+  // The one-line summary pinned under the title, so the effect of the interval and the day's start and end stays in view.
+  const summary = `Every ${s.interval_minutes} min · ${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)} · ${slots.length} a day`
 
   const save = (key: SettingKey, value: unknown) => {
     try {
@@ -115,33 +118,37 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
     }
   }
 
+  // A greyed-out row says what to turn on, instead of just looking broken.
+  const parentTitle = (key: SettingKey) => GROUPS.flatMap(g => g.items).find(i => 'key' in i && i.key === key)?.title
+
   const row = (item: Item) => {
     const disabled = !!item.dependsOn && !s[item.dependsOn]
     const common = { className: disabled ? 'disabled' : '', disabled }
+    const note = disabled && item.dependsOn ? `Turn on "${parentTitle(item.dependsOn) ?? 'the setting above'}" to change this` : item.desc
     switch (item.kind) {
       case 'switch':
         return (
-          <List.Item {...common} description={item.desc}
+          <List.Item {...common} description={note}
             extra={<Switch checked={s[item.key] as boolean} onChange={v => save(item.key, v)} />}>
             {item.title}
           </List.Item>
         )
       case 'slider':
         return (
-          <List.Item {...common} description={<>{item.desc && <div>{item.desc}</div>}
+          <List.Item {...common} description={<>{note && <div>{note}</div>}
             <SliderRow item={item} value={s[item.key] as number} onCommit={v => save(item.key, v)} /></>}>
             {item.title}
           </List.Item>
         )
       case 'select':
         return (
-          <List.Item {...common} extra={labelFor(item, s)} onClick={() => void pickSelect(item)}>
+          <List.Item {...common} description={note} extra={labelFor(item, s)} onClick={() => void pickSelect(item)}>
             {item.title}
           </List.Item>
         )
       case 'time':
         return (
-          <List.Item {...common} extra={minuteOfDay(s[item.key] as number, use24h)} onClick={() => pickTime(item)}>
+          <List.Item {...common} description={note} extra={minuteOfDay(s[item.key] as number, use24h)} onClick={() => pickTime(item)}>
             {item.title}
           </List.Item>
         )
@@ -170,32 +177,39 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   return (
     <div className="page scrolling">
       <PageTitle onBack={onBack}>Settings</PageTitle>
+      <div className="schedule-bar" aria-label="Current schedule">{summary}</div>
       <section className="card schedule">
         <div className="caption">YOUR BREAK TIMES</div>
         <div className="schedule-times">{schedule}</div>
         <div className="dim small">Fixed times, the same every day. Pausing or snoozing never moves them.</div>
       </section>
-      {GROUPS.map(g => (
-        <List key={g.title} header={g.title} mode="card">
-          {g.items.map(item => <Fragment key={item.title}>{row(item)}</Fragment>)}
-        </List>
-      ))}
-      <List header="Display" mode="card">
-        <List.Item
-          description="Makes everything larger or smaller. Automatic follows the size of the window, so a big screen gets a bigger interface."
-          extra={SCALE_CHOICES.find(c => c.value === uiScale)?.label ?? 'Automatic'}
-          onClick={() => void pickScale()}
-        >
-          Interface size
-        </List.Item>
-        <List.Item
-          description="The typeface used everywhere in the app. Fonts come from your device, so they may look slightly different on other phones."
-          extra={FONT_CHOICES.find(c => c.value === font)?.label ?? 'System default'}
-          onClick={() => void pickFont()}
-        >
-          Font
-        </List.Item>
-      </List>
+      <Collapse accordion defaultActiveKey="Rhythm" className="settings-groups">
+        {GROUPS.map(g => (
+          <Collapse.Panel key={g.title} title={g.title}>
+            <List>
+              {g.items.map(item => <Fragment key={item.title}>{row(item)}</Fragment>)}
+              {g.title === 'Appearance' && (
+                <>
+                  <List.Item
+                    description="Makes everything larger or smaller. Automatic follows the size of the window, so a big screen gets a bigger interface."
+                    extra={SCALE_CHOICES.find(c => c.value === uiScale)?.label ?? 'Automatic'}
+                    onClick={() => void pickScale()}
+                  >
+                    Interface size
+                  </List.Item>
+                  <List.Item
+                    description="The typeface used everywhere in the app. Fonts come from your device, so they may look slightly different on other phones."
+                    extra={FONT_CHOICES.find(c => c.value === font)?.label ?? 'System default'}
+                    onClick={() => void pickFont()}
+                  >
+                    Font
+                  </List.Item>
+                </>
+              )}
+            </List>
+          </Collapse.Panel>
+        ))}
+      </Collapse>
       <List header="About" mode="card">
         <List.Item description="Everything stays on this device. No accounts, no servers, no network permission.">
           Sitness 1.0
