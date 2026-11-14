@@ -4,7 +4,8 @@
 
 const KEY = 'sitness.font'
 
-export const FONT_CHOICES: { label: string; value: string; stack: string }[] = [
+/** `varies` marks faces whose look depends on the phone's own fonts. */
+export const FONT_CHOICES: { label: string; value: string; stack: string; varies?: boolean }[] = [
   { label: 'System default', value: 'system', stack: "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif" },
   { label: 'Roboto', value: 'roboto', stack: "Roboto, 'Segoe UI', Arial, sans-serif" },
   { label: 'Light', value: 'light', stack: "'sans-serif-light', 'Segoe UI Light', 'Helvetica Neue', Roboto, sans-serif" },
@@ -12,9 +13,9 @@ export const FONT_CHOICES: { label: string; value: string; stack: string }[] = [
   { label: 'Condensed', value: 'condensed', stack: "'sans-serif-condensed', 'Arial Narrow', Roboto, sans-serif" },
   { label: 'Serif', value: 'serif', stack: "serif, Georgia, 'Times New Roman'" },
   { label: 'Monospace', value: 'mono', stack: "monospace, Consolas, 'Courier New'" },
-  { label: 'Serif monospace', value: 'serif-mono', stack: "'serif-monospace', 'Courier New', monospace" },
-  { label: 'Casual', value: 'casual', stack: "casual, 'Comic Sans MS', 'Segoe Print', sans-serif" },
-  { label: 'Cursive', value: 'cursive', stack: "cursive, 'Segoe Script', 'Brush Script MT', sans-serif" },
+  { label: 'Serif monospace', value: 'serif-mono', stack: "'serif-monospace', 'Courier New', monospace", varies: true },
+  { label: 'Casual', value: 'casual', stack: "casual, 'Comic Sans MS', 'Segoe Print', sans-serif", varies: true },
+  { label: 'Cursive', value: 'cursive', stack: "cursive, 'Segoe Script', 'Brush Script MT', sans-serif", varies: true },
 ]
 
 export function getUserFont(): string {

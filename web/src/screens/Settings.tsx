@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { Collapse, Dialog, List, Picker, Selector, Slider, Switch, Toast } from 'antd-mobile'
+import { CheckList, Collapse, Dialog, List, Picker, Popup, Selector, Slider, Switch, Toast } from 'antd-mobile'
 import { api } from '../bridge'
 import { PageTitle } from '../components/PageTitle'
 import { TimeWheelPopup } from '../components/TimeWheel'
@@ -38,6 +38,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const [timeEdit, setTimeEdit] = useState<{ key: SettingKey; title: string; value: number } | null>(null)
   const [uiScale, setUiScale] = useState(getUserScale)
   const [font, setFont] = useState(getUserFont)
+  const [fontOpen, setFontOpen] = useState(false)
   if (!s) return <div className="page" />
 
   const use24h = s.time_format === '24'
@@ -48,7 +49,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const schedule = shown.join(' · ') + (slots.length > shown.length ? ` · … (${slots.length} a day)` : '')
 
   // The one-line summary pinned under the title, so the effect of the interval and the day's start and end stays in view.
-  const summary = `Every ${s.interval_minutes} min · ${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)} · ${slots.length} a day`
+  const summary = `${slots.length} ${slots.length === 1 ? 'Break' : 'Breaks'} a day · Every ${s.interval_minutes} min · ${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)}`
 
   const save = (key: SettingKey, value: unknown) => {
     try {
@@ -81,15 +82,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
     if (v && v[0] != null) { setUserScale(Number(v[0])); setUiScale(Number(v[0])) }
   }
 
-  const pickFont = async () => {
-    const v = await Picker.prompt({
-      title: 'Font',
-      mouseWheel: true,
-      columns: [FONT_CHOICES.map(c => ({ label: c.label, value: c.value }))],
-      defaultValue: [font],
-    })
-    if (v && v[0] != null) { setUserFont(String(v[0])); setFont(String(v[0])) }
-  }
+  const chooseFont = (v: string) => { setUserFont(v); setFont(v); setFontOpen(false) }
 
   const pickTime =(item: Extract<Item, { kind: 'time' }>) =>
     setTimeEdit({ key: item.key, title: item.title, value: s[item.key] as number })
@@ -109,8 +102,12 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
             () => { api.resetStats(); Toast.show({ icon: 'success', content: 'Statistics erased' }) })
           break
         case 'reset_settings':
-          void confirmThen('Reset all settings?', 'Everything returns to the defaults. Your statistics are kept.', 'Reset',
-            () => { setS(api.resetSettings()); onChanged() })
+          void confirmThen('Reset all settings?', 'Everything returns to the defaults, including the font and interface size. Your statistics are kept.', 'Reset',
+            () => {
+              setS(api.resetSettings()); onChanged()
+              setUserFont('system'); setFont('system')
+              setUserScale(1); setUiScale(1)
+            })
           break
       }
     } catch (e) {
@@ -200,7 +197,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
                   <List.Item
                     description="The typeface used everywhere in the app. Fonts come from your device, so they may look slightly different on other phones."
                     extra={FONT_CHOICES.find(c => c.value === font)?.label ?? 'System default'}
-                    onClick={() => void pickFont()}
+                    onClick={() => setFontOpen(true)}
                   >
                     Font
                   </List.Item>
@@ -215,6 +212,22 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
           Sitness 1.0
         </List.Item>
       </List>
+
+      <Popup visible={fontOpen} onMaskClick={() => setFontOpen(false)} bodyStyle={{ borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
+        <div className="font-sheet">
+          <div className="font-sheet-title">Font</div>
+          <CheckList value={[font]} onChange={v => { if (v[0] != null) chooseFont(String(v[0])) }}>
+            {FONT_CHOICES.map(c => (
+              <CheckList.Item
+                key={c.value} value={c.value}
+                description={c.varies ? 'May look different on other phones' : undefined}
+              >
+                <span style={{ fontFamily: c.stack }}>{c.label}</span>
+              </CheckList.Item>
+            ))}
+          </CheckList>
+        </div>
+      </Popup>
 
       {timeEdit && (
         <TimeWheelPopup
