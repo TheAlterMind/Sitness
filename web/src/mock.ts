@@ -145,7 +145,7 @@ function stateJson(): AppState {
   const t = today()
   const dark = settings.theme === 'dark' || (settings.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
   return {
-    now, flow: session ? session.stage : 'idle', enabled: settings.enabled, paused: pausedUntil > now,
+    now, flow: session ? session.stage : 'idle', enabled: settings.enabled, paused: pausedUntil > now, pausedUntil,
     inWindow: true, nextDue: settings.enabled ? Math.max(armedDue, pausedUntil) : 0,
     intervalMs: settings.interval_minutes * 60_000, windowStart: settings.day_start, use24h: settings.time_format === '24',
     xp: profile.xp, level: levelJson(profile.xp),
@@ -281,7 +281,11 @@ export function mockCall(method: string, a: unknown[]): unknown {
     case 'setEnabled': settings.enabled = a[0] as boolean; armedDue = 0; return true
     case 'pauseReminders': {
       const kind = a[0] as string
-      pausedUntil = Date.now() + (kind === 'day' ? 8 * 3_600_000 : Number(kind) * 60_000)
+      // 'day' mirrors AlarmScheduler.pauseRestOfDay: 00:01 tomorrow
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+      tomorrow.setHours(0, 1, 0, 0)
+      pausedUntil = kind === 'day' ? tomorrow.getTime() : Date.now() + Number(kind) * 60_000
       armedDue = 0
       return true
     }

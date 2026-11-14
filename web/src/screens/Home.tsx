@@ -18,6 +18,12 @@ function attempt(fn: () => unknown, refresh: () => void) {
   refresh()
 }
 
+function pausedUntilText(until: number, use24h: boolean): string {
+  const end = new Date(until)
+  if (end.toDateString() !== new Date().toDateString()) return 'until tomorrow'
+  return `until ${minuteOfDay(end.getHours() * 60 + end.getMinutes(), use24h)}`
+}
+
 export function Home({ state: s, refresh, onOpen }: Props) {
   const remaining = Math.max(0, s.nextDue - Date.now())
   const hasDue = s.nextDue > 0
@@ -27,7 +33,7 @@ export function Home({ state: s, refresh, onOpen }: Props) {
   let sub: string
   let ring = progress
   if (!s.enabled) { timer = 'Off'; sub = 'reminders disabled'; ring = 0 }
-  else if (s.paused) { timer = 'Paused'; sub = 'tap resume to restart' }
+  else if (s.paused) { timer = 'Paused'; sub = s.pausedUntil ? pausedUntilText(s.pausedUntil, s.use24h) : 'tap resume to restart' }
   else if (!s.inWindow) { timer = 'Off hours'; sub = `next break at ${minuteOfDay(s.windowStart, s.use24h)}`; ring = 0 }
   else { timer = hasDue ? clock(remaining) : '--:--'; sub = subtitle(s) }
 

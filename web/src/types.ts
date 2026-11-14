@@ -16,6 +16,7 @@ export interface AppState {
   flow: Flow
   enabled: boolean
   paused: boolean
+  pausedUntil?: number
   inWindow: boolean
   nextDue: number
   intervalMs: number

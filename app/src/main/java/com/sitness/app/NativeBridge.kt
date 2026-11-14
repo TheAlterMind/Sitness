@@ -145,6 +145,7 @@ class NativeBridge(private val activity: MainActivity) {
             .put("flow", BreakSession.flow(c))
             .put("enabled", Prefs.enabled(c))
             .put("paused", AlarmScheduler.isPaused(c))
+            .put("pausedUntil", Prefs.pausedUntil(c))
             .put("inWindow", AlarmScheduler.isWithinWindowNow(c))
             .put("nextDue", Prefs.nextDue(c))
             .put("intervalMs", Prefs.interval(c) * 60_000L)
