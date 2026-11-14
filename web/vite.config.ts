@@ -1,8 +1,6 @@
 import { defineConfig } from 'vite'
 import type { Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-// @ts-ignore plain JS module, dev server only
-import { tweaks } from './dev-tweaks-plugin.mjs'
 
 // The page can reach the app through a bridge, so in the shipped build it is also locked down:
 // scripts and styles only from the app's own assets, and no outgoing connections of any kind.
@@ -27,7 +25,7 @@ const csp: Plugin = {
 
 // The bundle is served by the Android app from assets/web/, so everything is built with relative URLs.
 export default defineConfig({
-  plugins: [react(), csp, tweaks],
+  plugins: [react(), csp],
   base: './',
   build: {
     outDir: '../app/src/main/assets/web',

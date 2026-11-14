@@ -9,15 +9,6 @@ import { initBridge } from './bridge'
 import { startScaling } from './scale'
 import { applyFont } from './fonts'
 
-// Development only: the /iterate tweak bar (in Claude's UI) writes web/__tweaks.json and this applies it.
-// import.meta.env.DEV is false in a production build, so none of it is shipped.
-if (import.meta.env.DEV) {
-  // @ts-ignore untyped script
-  void import('./dev/apply.js')
-  void import('./dev/tweakbar.css')  // The in-app tweak panel (gear button in a corner), for clients that cannot show the /iterate pane.
-  void import('./dev/mountPanel')
-}
-
 // Size the interface to the window before anything is drawn, and keep it in step as the window changes.
 startScaling()
 applyFont()
