@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Button, ProgressBar, Toast } from 'antd-mobile'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
 import { CheckCircleIcon } from '../components/Icons'
 import { useCountUp, usePoll } from '../hooks'
 
@@ -37,7 +38,7 @@ export function Reward({ refresh }: { refresh: () => void }) {
     .filter((b): b is NonNullable<typeof b> => !!b)
 
   const close = () => {
-    try { api.closeReward() } catch (e) { Toast.show({ content: (e as Error).message }) }
+    try { api.closeReward() } catch (e) { Toast.show({ content: friendlyError(e, 'close this screen') }) }
     refresh()
   }
 

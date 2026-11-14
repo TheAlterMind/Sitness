@@ -115,7 +115,7 @@ h2 { font-size: 18px; font-weight: 500; margin: 8px 0 16px; text-align: center; 
 @keyframes slide-out-right { from { transform: none; } to { transform: translateX(100%); } }
 .page { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 0 18px; box-sizing: border-box; }
 .page.home, .page.break, .page.water, .page.reward { width: 100%; max-width: 560px; margin: 0 auto; }
-.page.home { touch-action: pan-y; } /* horizontal swipes belong to the app (Stats / Settings), not the browser */
+.page.home, .page.scrolling { touch-action: pan-y; } /* horizontal swipes belong to the app (Stats / Settings), not the browser */
 .page.scrolling { width: 100%; max-width: 720px; margin: 0 auto; overflow-y: auto; padding-bottom: 24px; gap: 12px; }
 .page-title { font-size: 22px; font-weight: 500; margin: 18px 0 4px; }
 .scroll { flex: 1; min-height: 0; overflow-y: auto; padding-top: 24px; display: flex; flex-direction: column; gap: 12px; }
@@ -136,7 +136,7 @@ h2 { font-size: 18px; font-weight: 500; margin: 8px 0 16px; text-align: center; 
 /* Dark theme: an off switch is filled with the same grey as its outline. */
 html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before { background: var(--adm-color-border); }
 
-.disabled { opacity: 0.4; pointer-events: none; }
+.disabled { opacity: 0.4; }
 .notice { border-radius: 16px; margin-bottom: 8px; }
 
 /* ---------- home ---------- */
@@ -229,6 +229,13 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .badge-empty { width: 14px; height: 14px; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--track); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 /* The streak is the headline of the Stats page. */
+.hero-top { display: flex; align-items: center; justify-content: space-between; margin: -12px -10px -8px 0; }
+.help-sheet { padding: 12px 20px 20px; max-height: 80vh; overflow-y: auto; }
+.help-title { font-size: 17px; font-weight: 500; padding-bottom: 8px; }
+.help-item { padding: 10px 0; border-top: 1px solid var(--track); }
+.help-term { color: var(--accent-text); font-size: 15px; margin-bottom: 2px; }
+.help-text { color: var(--text); font-size: 14px; line-height: 1.45; }
+.help-close { margin-top: 14px; width: 100%; height: 48px; border: 0; border-radius: 16px; background: var(--accent); color: #fff; font: inherit; font-size: 17px; }
 .hero-row { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 10px; }
 .hero-num { font-size: 56px; line-height: 1; font-weight: 500; color: var(--accent-text); font-variant-numeric: tabular-nums; }
 .hero-unit { font-size: 18px; color: var(--text); }
@@ -272,6 +279,8 @@ html[data-prefers-color-scheme='dark'] .adm-switch .adm-switch-checkbox:before {
 .schedule-times { font-size: 16px; line-height: 1.5; font-variant-numeric: tabular-nums; color: var(--accent-text); }
 .slider-row { padding: 6px 4px 2px; }
 /* After release the thumb glides to its step; during a drag there is no transition so it tracks the finger */
+/* Dark theme only: the unfilled part of the track was nearly invisible on the card */
+html[data-prefers-color-scheme='dark'] .slider-row .adm-slider-track { background: rgba(255, 255, 255, 0.22); }
 .slider-row.settling .adm-slider-thumb-container { transition: left 0.2s ease-out; }
 .slider-row.settling .adm-slider-fill { transition: width 0.2s ease-out; }
 .slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }

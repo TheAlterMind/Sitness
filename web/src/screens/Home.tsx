@@ -1,7 +1,10 @@
-import { useRef } from 'react'
+import { useState } from 'react'
 import { ActionSheet, Button, NoticeBar, Toast } from 'antd-mobile'
-import { HistogramOutline, SetOutline } from 'antd-mobile-icons'
+import { HistogramOutline, QuestionCircleOutline, SetOutline } from 'antd-mobile-icons'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
+import { useSwipe } from '../swipe'
+import { HelpSheet } from '../components/HelpSheet'
 import { ClockIcon, CupIcon } from '../components/Icons'
 import { ChipCounter } from '../components/ChipCounter'
 import { Ring } from '../components/Ring'
@@ -14,8 +17,8 @@ interface Props {
   onOpen: (screen: 'stats' | 'settings') => void
 }
 
-function attempt(fn: () => unknown, refresh: () => void) {
-  try { fn() } catch (e) { Toast.show({ icon: 'fail', content: (e as Error).message }) }
+function attempt(fn: () => unknown, refresh: () => void, what = 'do that') {
+  try { fn() } catch (e) { Toast.show({ icon: 'fail', content: friendlyError(e, what) }) }
   refresh()
 }
 
@@ -39,7 +42,7 @@ export function Home({ state: s, refresh, onOpen }: Props) {
   else { timer = hasDue ? clock(remaining) : '--:--'; sub = subtitle(s) }
 
   const pauseMenu = () => {
-    const pick = (kind: '30' | '60' | '120' | 'day') => () => { handler.close(); attempt(() => api.pauseReminders(kind), refresh) }
+    const pick = (kind: '30' | '60' | '120' | 'day') => () => { handler.close(); attempt(() => api.pauseReminders(kind), refresh, 'pause reminders') }
     const handler = ActionSheet.show({
       cancelText: 'Cancel',
       actions: [
@@ -54,7 +57,7 @@ export function Home({ state: s, refresh, onOpen }: Props) {
             attempt(() => {
               api.setEnabled(false)
               Toast.show({ content: 'Reminders are off. Tap Turn on to start again.' })
-            }, refresh)
+            }, refresh, 'turn off reminders')
           },
         },
       ],
@@ -65,38 +68,22 @@ export function Home({ state: s, refresh, onOpen }: Props) {
     try {
       if (s.notificationsOff) api.openSystem('notifications')
       else api.openSystem('exact_alarm')
-    } catch (e) { Toast.show({ content: (e as Error).message }) }
+    } catch (e) { Toast.show({ content: friendlyError(e, 'open the phone settings') }) }
   }
 
-  // Swipe right for Stats, swipe left for Settings (the header icons are hard to reach one-handed).
-  // Starts near a screen edge are left alone: Android uses those for its own back gesture.
-  const swipe = useRef<{ x: number; y: number; t: number } | null>(null)
-  const onTouchStart = (e: React.TouchEvent) => {
-    const p = e.touches[0]
-    const edge = 24
-    swipe.current = e.touches.length === 1 && p.clientX > edge && p.clientX < window.innerWidth - edge
-      ? { x: p.clientX, y: p.clientY, t: Date.now() }
-      : null
-  }
-  const onTouchEnd = (e: React.TouchEvent) => {
-    const s = swipe.current
-    swipe.current = null
-    if (!s) return
-    const p = e.changedTouches[0]
-    const dx = p.clientX - s.x
-    const dy = p.clientY - s.y
-    if (Date.now() - s.t > 700 || Math.abs(dx) < 70 || Math.abs(dx) < Math.abs(dy) * 1.5) return
-    onOpen(dx < 0 ? 'settings' : 'stats')
-  }
+  // Swipe right for Stats, swipe left for Settings (Stats sits left of Home, Settings right).
+  const swipe = useSwipe({ onLeft: () => onOpen('settings'), onRight: () => onOpen('stats') })
+  const [helpOpen, setHelpOpen] = useState(false)
 
   return (
-    <div className="page home" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} onTouchCancel={() => { swipe.current = null }}>
+    <div className="page home" {...swipe}>
       <div className="home-top">
       <header className="head">
         <div>
           <div className="title">Level {s.level.level} · <span style={{ color: 'var(--accent-text)' }}>{s.level.title}</span></div>
         </div>
         <div className="head-icons">
+          <button className="icon-btn" aria-label="How it works" onClick={() => setHelpOpen(true)}><QuestionCircleOutline /></button>
           <button className="icon-btn" aria-label="Stats" onClick={() => onOpen('stats')}><HistogramOutline /></button>
           <button className="icon-btn" aria-label="Settings" onClick={() => onOpen('settings')}><SetOutline /></button>
         </div>
@@ -131,16 +118,18 @@ export function Home({ state: s, refresh, onOpen }: Props) {
       </section>
 
       <footer className="actions">
-        <Button color="primary" size="large" block onClick={() => attempt(() => api.startBreak(), refresh)}>
+        <Button color="primary" size="large" block onClick={() => attempt(() => api.startBreak(), refresh, 'start the break')}>
           Break now
         </Button>
         <Button
           size="large" block className="tonal pause"
-          onClick={() => (!s.enabled ? attempt(() => api.setEnabled(true), refresh) : s.paused ? attempt(() => api.resumeReminders(), refresh) : pauseMenu())}
+          onClick={() => (!s.enabled ? attempt(() => api.setEnabled(true), refresh, 'turn reminders on') : s.paused ? attempt(() => api.resumeReminders(), refresh, 'resume reminders') : pauseMenu())}
         >
           {!s.enabled ? 'Turn on' : s.paused ? 'Resume' : 'Pause'}
         </Button>
       </footer>
+
+      <HelpSheet visible={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   )
 }

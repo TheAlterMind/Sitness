@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { Button, Dialog, Swiper, Toast } from 'antd-mobile'
 import type { SwiperRef } from 'antd-mobile'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
 import { CloseIcon, PauseIcon, PlayIcon } from '../components/Icons'
 import { Vessel } from '../components/Vessel'
 import { clock } from '../format'
@@ -15,7 +16,7 @@ export function confirmSkip(done: () => void) {
     confirmText: 'Skip',
     cancelText: 'Keep going',
     onConfirm: () => {
-      try { api.skipBreak() } catch (e) { Toast.show({ content: (e as Error).message }) }
+      try { api.skipBreak() } catch (e) { Toast.show({ content: friendlyError(e, 'skip this break') }) }
       done()
     },
   })
@@ -29,7 +30,7 @@ export function Break({ refresh }: { refresh: () => void }) {
   const finish = () => {
     if (handedOff.current) return
     handedOff.current = true
-    try { api.finishBreak() } catch (e) { Toast.show({ content: (e as Error).message }); handedOff.current = false }
+    try { api.finishBreak() } catch (e) { Toast.show({ content: friendlyError(e, 'finish the break') }); handedOff.current = false }
     refresh()
   }
 

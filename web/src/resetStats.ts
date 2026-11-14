@@ -1,5 +1,6 @@
 import { Dialog, Toast } from 'antd-mobile'
 import { api } from './bridge'
+import { friendlyError } from './errors'
 
 /** The one "reset statistics" flow, used by Stats and Settings so both say the same thing. */
 export async function confirmResetStats(onDone?: () => void): Promise<void> {
@@ -11,6 +12,6 @@ export async function confirmResetStats(onDone?: () => void): Promise<void> {
   })
   if (!ok) return
   try { api.resetStats(); Toast.show({ icon: 'success', content: 'Statistics erased' }) }
-  catch (e) { Toast.show({ content: (e as Error).message }) }
+  catch (e) { Toast.show({ content: friendlyError(e, 'erase your statistics') }) }
   onDone?.()
 }

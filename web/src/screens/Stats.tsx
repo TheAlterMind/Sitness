@@ -1,5 +1,10 @@
+import { useState } from 'react'
 import { Button, Dialog, Grid, ProgressBar } from 'antd-mobile'
+import { QuestionCircleOutline } from 'antd-mobile-icons'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
+import { useSwipe } from '../swipe'
+import { HelpSheet } from '../components/HelpSheet'
 import { PageTitle } from '../components/PageTitle'
 import { BarChart } from '../components/BarChart'
 import { CheckCircleIcon } from '../components/Icons'
@@ -18,25 +23,31 @@ function Tile({ value, label }: { value: string | number; label: string }) {
 
 export function Stats({ onBack }: { onBack: () => void }) {
   const [s, refresh] = usePoll(api.getStats, null)
+  const [helpOpen, setHelpOpen] = useState(false)
+  // Stats sits left of Home, so the way back is a swipe towards the left.
+  const swipe = useSwipe({ onLeft: onBack })
   if (!s) return <div className="page" />
 
   const maxTotal = Math.max(1, ...s.exercises.map(e => e.total))
   const unlockedDate = (ms: number) => new Date(ms).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })
 
   const doExport = () => {
-    try { api.exportStats() } catch (e) { Dialog.alert({ title: 'Export failed', content: (e as Error).message }) }
+    try { api.exportStats() } catch (e) { Dialog.alert({ title: 'Export failed', content: friendlyError(e, 'export your statistics') }) }
   }
 
   const doReset = () => confirmResetStats(refresh)
 
   return (
-    <div className="page scrolling wide">
+    <div className="page scrolling wide" {...swipe}>
       <PageTitle onBack={onBack}>Statistics</PageTitle>
 
       <div className="stats-cols">
       <div className="stats-col">
       <section className="card hero">
-        <div className="caption">CURRENT STREAK</div>
+        <div className="hero-top">
+          <div className="caption">CURRENT STREAK</div>
+          <button className="icon-btn" aria-label="How it works" onClick={() => setHelpOpen(true)}><QuestionCircleOutline /></button>
+        </div>
         <div className="hero-row">
           <span className="hero-num">{s.streak}</span>
           <span className="hero-unit">{s.streak === 1 ? 'day' : 'days'}</span>
@@ -108,6 +119,8 @@ export function Stats({ onBack }: { onBack: () => void }) {
         <Button block size="large" className="tonal" onClick={doExport}>Export statistics as JSON</Button>
         <Button block fill="none" color="danger" onClick={doReset}>Reset all statistics</Button>
       </div>
+
+      <HelpSheet visible={helpOpen} onClose={() => setHelpOpen(false)} />
     </div>
   )
 }

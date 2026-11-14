@@ -1,6 +1,8 @@
 import { Fragment, useRef, useState } from 'react'
 import { CheckList, Collapse, Dialog, List, Picker, Popup, Selector, Slider, Switch, Toast } from 'antd-mobile'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
+import { useSwipe } from '../swipe'
 import { PageTitle } from '../components/PageTitle'
 import { TimeWheelPopup } from '../components/TimeWheel'
 import { daySlots, minuteOfDay } from '../format'
@@ -15,10 +17,11 @@ import type { SettingKey, Settings } from '../types'
  * A slider that follows the finger smoothly (no stepping while dragging), shows the nearest
  * step as a live number, glides to that step on release, and only then tells the app.
  */
-function SliderRow({ item, value, onCommit }: {
+function SliderRow({ item, value, onCommit, disabled }: {
   item: Extract<Item, { kind: 'slider' }>
   value: number
   onCommit: (v: number) => void
+  disabled?: boolean
 }) {
   const [drag, setDrag] = useState<number | null>(null)
   const [dragging, setDragging] = useState(false)
@@ -44,7 +47,7 @@ function SliderRow({ item, value, onCommit }: {
   // touch mode), which leaves a mouse unable to drag. So mouse and pen drags on the thumb are handled
   // here; touch still goes through antd.
   const onThumbPointerDown = (e: React.PointerEvent) => {
-    if (e.pointerType === 'touch' || e.button !== 0) return
+    if (disabled || e.pointerType === 'touch' || e.button !== 0) return
     if (!(e.target as Element).closest('.adm-slider-thumb-container')) return
     const track = rowRef.current?.querySelector('.adm-slider-track')
     if (!track) return
@@ -84,7 +87,7 @@ function SliderRow({ item, value, onCommit }: {
     >
       <div className="slider-value">{snap(raw)}{item.unit ? ` ${item.unit}` : ''}</div>
       <Slider
-        min={item.min} max={item.max} step={(item.max - item.min) / 1000} value={raw}
+        min={item.min} max={item.max} step={(item.max - item.min) / 1000} value={raw} disabled={disabled}
         onChange={v => { clearTimeout(settle.current); setDragging(true); setDrag(one(v)) }}
         onAfterChange={v => finish(one(v))}
       />
@@ -100,6 +103,8 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const [uiScale, setUiScale] = useState(getUserScale)
   const [font, setFont] = useState(getUserFont)
   const [fontOpen, setFontOpen] = useState(false)
+  // Settings sits right of Home, so the way back is a swipe towards the right.
+  const swipe = useSwipe({ onRight: onBack })
   if (!s) return <div className="page" />
 
   const use24h = s.time_format === '24'
@@ -110,14 +115,15 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const schedule = shown.join(' · ') + (slots.length > shown.length ? ` · … (${slots.length} a day)` : '')
 
   // The one-line summary pinned under the title, so the effect of the interval and the day's start and end stays in view.
-  const summary = `${slots.length} ${slots.length === 1 ? 'Break' : 'Breaks'} a day · Every ${s.interval_minutes} min · ${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)}`
-
+  // Same start and end means the whole day, so say that instead of showing a range like 09:55–09:55.
+  const hours = s.day_start === s.day_end ? 'All day' : `${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)}`
+  const summary = `${slots.length} ${slots.length === 1 ? 'Break' : 'Breaks'} a day · Every ${s.interval_minutes} min · ${hours}`
   const save = (key: SettingKey, value: unknown) => {
     try {
       setS(api.setSetting(key, value))
       onChanged()
     } catch (e) {
-      Toast.show({ icon: 'fail', content: (e as Error).message })
+      Toast.show({ icon: 'fail', content: friendlyError(e, 'save that setting') })
       try { setS(api.getSettings()) } catch { /* keep what we have */ }
     }
   }
@@ -169,7 +175,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
           break
       }
     } catch (e) {
-      Toast.show({ icon: 'fail', content: (e as Error).message })
+      Toast.show({ icon: 'fail', content: friendlyError(e, id === 'export' ? 'export your statistics' : id === 'reset_settings' ? 'reset the settings' : 'open the phone settings') })
     }
   }
 
@@ -178,20 +184,21 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
 
   const row = (item: Item) => {
     const disabled = !!item.dependsOn && !s[item.dependsOn]
-    const common = { className: disabled ? 'disabled' : '', disabled }
+    // Dimmed, and marked disabled for assistive tech; the controls inside are switched off too (not blocked with pointer-events).
+    const common = { className: disabled ? 'disabled' : '', disabled, 'aria-disabled': disabled ? true : undefined }
     const note = disabled && item.dependsOn ? `Turn on "${parentTitle(item.dependsOn) ?? 'the setting above'}" to change this` : item.desc
     switch (item.kind) {
       case 'switch':
         return (
           <List.Item {...common} description={note}
-            extra={<Switch checked={s[item.key] as boolean} onChange={v => save(item.key, v)} />}>
+            extra={<Switch checked={s[item.key] as boolean} disabled={disabled} onChange={v => save(item.key, v)} />}>
             {item.title}
           </List.Item>
         )
       case 'slider':
         return (
           <List.Item {...common} description={<>{note && <div>{note}</div>}
-            <SliderRow item={item} value={s[item.key] as number} onCommit={v => save(item.key, v)} /></>}>
+            <SliderRow item={item} value={s[item.key] as number} disabled={disabled} onCommit={v => save(item.key, v)} /></>}>
             {item.title}
           </List.Item>
         )
@@ -211,7 +218,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
         return (
           <List.Item {...common} description={<>{item.desc && <div>{item.desc}</div>}
             <Selector
-              multiple showCheckMark={false} columns={item.columns ?? 2} options={item.options} value={s[item.key] as string[]}
+              multiple showCheckMark={false} columns={item.columns ?? 2} options={item.options} value={s[item.key] as string[]} disabled={disabled}
               onChange={arr => {
                 if (arr.length === 0) { Toast.show({ content: 'Keep at least one selected' }); return }
                 save(item.key, arr)
@@ -230,7 +237,7 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   }
 
   return (
-    <div className="page scrolling">
+    <div className="page scrolling" {...swipe}>
       <PageTitle onBack={onBack}>Settings</PageTitle>
       <div className="schedule-bar" aria-label="Current schedule">{summary}</div>
       <section className="card schedule">

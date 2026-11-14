@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
 import { Button, Toast } from 'antd-mobile'
 import { api } from '../bridge'
+import { friendlyError } from '../errors'
 import { DropIcon, MinusIcon, PlusIcon } from '../components/Icons'
 import { usePoll } from '../hooks'
 
@@ -17,7 +18,7 @@ export function Water({ refresh }: { refresh: () => void }) {
     if (busy.current) return          // a double tap must not score the break twice
     busy.current = true
     try { api.commitBreak(count) } catch (e) {
-      Toast.show({ content: (e as Error).message })
+      Toast.show({ content: friendlyError(e, 'save your water') })
       busy.current = false
     }
     refresh()
