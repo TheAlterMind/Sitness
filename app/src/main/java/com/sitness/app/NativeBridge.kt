@@ -101,6 +101,8 @@ class NativeBridge(private val activity: MainActivity) {
         "openSystem" -> { openSystem(a.getString(0)); true }
         "requestNotificationPermission" -> { activity.requestNotificationPermission(); true }
         "setChrome" -> { activity.setChrome(a.getString(0), a.getBoolean(1)); true }
+        // Android's font-size setting (1.0 = default); the page multiplies it into its root size.
+        "fontScale" -> activity.resources.configuration.fontScale.toDouble()
 
         else -> throw IllegalArgumentException("Unknown method: $method")
     }

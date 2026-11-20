@@ -292,6 +292,8 @@ export function mockCall(method: string, a: unknown[]): unknown {
     case 'resumeReminders': pausedUntil = 0; armedDue = 0; return true
 
     case 'exportStats': case 'openSystem': case 'requestNotificationPermission': case 'setChrome': return true
+    // The browser has no system font setting; ?fs=1.3 in the address bar stands in for it when testing.
+    case 'fontScale': return Number(new URLSearchParams(location.search).get('fs')) || 1
 
     default: throw new Error(`Unknown method: ${method}`)
   }

@@ -29,10 +29,18 @@ export function setUserScale(v: number): void {
   applyScale()
 }
 
+/** Android's own font-size setting (1 = default). Set once the bridge is up; it multiplies the whole interface. */
+let systemScale = 1
+
+export function setSystemScale(v: number): void {
+  systemScale = Number.isFinite(v) ? Math.min(Math.max(v, 0.85), 2) : 1
+  applyScale()
+}
+
 /** Root font size for a window: 2% of its height, capped by 4.4% of its width, never below 16px. */
 export function rootSize(width: number, height: number, user = 1): number {
   const auto = Math.min(0.02 * height, 0.044 * width)
-  return Math.min(Math.max(16, auto) * user, 96)
+  return Math.min(Math.max(16, auto) * user * systemScale, 96)
 }
 
 export function applyScale(): void {
@@ -41,6 +49,8 @@ export function applyScale(): void {
   const root = document.documentElement
   const px = rootSize(w, h, getUserScale())
   root.style.fontSize = `${px.toFixed(2)}px`
+  // Lets a part of the interface (the Home header) undo the system font size and stay at its normal size.
+  root.style.setProperty('--sys-scale', String(systemScale))
 
   // The window as the interface sees it: how many 16px-units fit.
   const ew = (w * 16) / px

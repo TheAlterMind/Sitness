@@ -62,4 +62,5 @@ export const api = {
   openSystem: (which: 'exact_alarm' | 'battery' | 'notifications') => call<boolean>('openSystem', which),
   requestNotificationPermission: () => call<boolean>('requestNotificationPermission'),
   setChrome: (hex: string, darkIcons: boolean) => call<boolean>('setChrome', hex, darkIcons),
+  fontScale: () => call<number>('fontScale'),
 }
