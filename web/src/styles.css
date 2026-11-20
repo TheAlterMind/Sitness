@@ -259,7 +259,7 @@ html.lshort .help-item { break-inside: avoid; }
 .wheel-sheet { background: var(--surface); border-radius: 16px 16px 0 0; padding-bottom: 16px; }
 .wheel-head { display: flex; justify-content: space-between; align-items: center; padding: 12px 8px 4px; }
 .wheel-title { font-size: 16px; }
-.wheel-btn { border: 0; background: none; color: var(--dim); font-size: 16px; padding: 8px 12px; }
+.wheel-btn { border: 0; background: none; color: var(--dim); font-size: 16px; padding: 8px 12px; min-height: 48px; min-width: 48px; }
 .wheel-btn.confirm { color: var(--accent-text); font-weight: 600; }
 .wheel-body { position: relative; display: flex; justify-content: center; align-items: center; gap: 4px; height: 220px; }
 .wheel-band { position: absolute; left: 24px; right: 24px; top: 88px; height: 44px; border-radius: 16px; background: var(--well); pointer-events: none; }
@@ -290,6 +290,8 @@ html.lshort .help-item { break-inside: avoid; }
 /* The unfilled part of the track was nearly invisible on the card, in both themes */
 html[data-prefers-color-scheme='dark'] .slider-row .adm-slider-track { background: rgba(255, 255, 255, 0.22); }
 html:not([data-prefers-color-scheme='dark']) .slider-row .adm-slider-track { background: var(--track); }
+/* The thumb is drawn 28px but its touch area is 48px: an invisible extension around the 32px container. */
+.slider-row .adm-slider-thumb-container::before { content: ''; position: absolute; inset: -8px; }
 .slider-row.settling .adm-slider-thumb-container { transition: left 0.2s ease-out; }
 .slider-row.settling .adm-slider-fill { transition: width 0.2s ease-out; }
 .slider-value { text-align: right; color: var(--text); font-size: 13px; margin-bottom: 2px; }
