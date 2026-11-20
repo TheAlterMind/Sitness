@@ -267,6 +267,16 @@ spacing, the ring and the vessel. `web/src/scale.ts` sets the root font size fro
 **Settings → Appearance → Interface size** (Smaller, Automatic, Larger, Largest) multiplies the automatic
 size, for example on a 4K screen that already has its own scaling. It is remembered on that device only.
 
+The page also follows **Android's own font size** (Settings → Display → Font size). Kotlin sends the
+system scale through the bridge (`fontScale`, clamped to 0.85-2) and `scale.ts` multiplies it into the
+root size, on top of the Interface size choice. The Home header cancels it and stays at its normal
+size, so the level title and three icons keep fitting on one line. In a browser, `?fs=1.2` on the
+address stands in for the system setting.
+
+The window is edge-to-edge: it runs under the status and navigation bars, `MainActivity` pads the page
+by the system-bar and cutout insets, and the bars take the page colour. Header icons and Break
+buttons are 48px touch targets. Predictive Back is enabled in the manifest.
+
 The layout switches (`lw` framed column, `lwide` two-column Stats, `lshort` side-by-side Home and
 Break) are decided from the window measured in the same scaled units, not raw pixels. So a large
 interface in a small window goes compact instead of overflowing. If you add CSS, write sizes in `px`

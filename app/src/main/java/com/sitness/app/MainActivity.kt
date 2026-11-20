@@ -16,10 +16,14 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.FrameLayout
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.webkit.WebSettingsCompat
 import androidx.webkit.WebViewAssetLoader
@@ -46,6 +50,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private lateinit var web: WebView
+    private lateinit var holder: FrameLayout
 
     private val notifPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
@@ -92,7 +97,22 @@ class MainActivity : AppCompatActivity() {
             }
             addJavascriptInterface(NativeBridge(this@MainActivity), "Native")
         }
-        setContentView(web)
+        // Edge-to-edge: the window runs under the system bars (Android 15 forces this for apps that
+        // target 35), and the page is kept clear of them with padding, so every screen sits where it
+        // did before. The holder is painted with the page colour, so the bar areas match the page.
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        holder = FrameLayout(this).apply {
+            setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.bg))
+            addView(web, FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, FrameLayout.LayoutParams.MATCH_PARENT))
+        }
+        ViewCompat.setOnApplyWindowInsetsListener(holder) { v, insets ->
+            val bars = insets.getInsets(
+                WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.displayCutout() or WindowInsetsCompat.Type.ime()
+            )
+            v.setPadding(bars.left, bars.top, bars.right, bars.bottom)
+            WindowInsetsCompat.CONSUMED
+        }
+        setContentView(holder)
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -185,6 +205,7 @@ class MainActivity : AppCompatActivity() {
             window.statusBarColor = color
             window.navigationBarColor = color
             web.setBackgroundColor(color)
+            holder.setBackgroundColor(color)
             WindowInsetsControllerCompat(window, window.decorView).apply {
                 isAppearanceLightStatusBars = darkIcons
                 isAppearanceLightNavigationBars = darkIcons
