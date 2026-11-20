@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-20T00:00:00Z",
+  "title": "Design System: Sitness",
+  "extensions": {
+    "colorMeta": {
+      "accent-violet": { "role": "primary", "displayName": "Violet Signal", "canonical": "#8E71E6", "tonalRamp": ["#1E1740", "#3B2D7A", "#5A44B0", "#7459D2", "#8E71E6", "#AB93F0", "#C9B8F6", "#E6DEFB"] },
+      "dark-bg": { "role": "neutral", "displayName": "Tinted Night", "canonical": "#0E0B17", "tonalRamp": ["#0A0810", "#0E0B17", "#14111D", "#1A1724", "#201D2B", "#2A2736", "#38354A", "#4A465E"] },
+      "dark-surface": { "role": "neutral", "displayName": "Control Grey", "canonical": "#26232E", "tonalRamp": ["#131315", "#19181E", "#26232E", "#2A2A2E", "#3C3B41", "#58575D", "#98979D", "#E9E8EE"] }
+    },
+    "typographyMeta": {
+      "timer": { "displayName": "Timer", "purpose": "Home countdown, sized from the ring." },
+      "hero": { "displayName": "Hero", "purpose": "Streak number on Stats." },
+      "label": { "displayName": "Label", "purpose": "Captions and tile labels; 12px floor." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "screen-slide", "value": "0.32s cubic-bezier(0.22, 0.8, 0.24, 1)", "purpose": "Stats, Home and Settings slide in from the side where they sit." },
+      { "name": "chip-fill", "value": "width 0.4s ease", "purpose": "Goal tint growing in a Home chip." },
+      { "name": "slider-settle", "value": "0.2s ease-out", "purpose": "Slider thumb gliding to its step after release." }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Break now; the single main action on a screen.",
+      "html": "<button class=\"ds-btn-primary\">Break now</button>",
+      "css": ".ds-btn-primary{background:#8E71E6;color:#0B0814;border:0;border-radius:16px;height:48px;padding:0 28px;font:inherit;font-size:16px}.ds-btn-primary:focus-visible{outline:2px solid #E9E8EE;outline-offset:2px}.ds-btn-primary:active{filter:brightness(.92)}"
+    },
+    {
+      "name": "Tonal Button",
+      "kind": "button",
+      "refersTo": "button-tonal",
+      "description": "Pause and other secondary actions.",
+      "html": "<button class=\"ds-btn-tonal\">Pause</button>",
+      "css": ".ds-btn-tonal{background:#26232E;color:#E9E8EE;border:0;border-radius:16px;height:48px;padding:0 28px;font:inherit;font-size:16px}.ds-btn-tonal:focus-visible{outline:2px solid #8E71E6;outline-offset:2px}.ds-btn-tonal:active{filter:brightness(1.15)}"
+    },
+    {
+      "name": "Counter Chip",
+      "kind": "chip",
+      "refersTo": "chip-counter",
+      "description": "Breaks or water today; the tint grows toward the goal.",
+      "html": "<div class=\"ds-chip\"><i style=\"width:60%\"></i><b>4</b></div>",
+      "css": ".ds-chip{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;width:140px;padding:11px 12px;background:#26232E;border-radius:16px;color:#E9E8EE;font-size:18px}.ds-chip i{position:absolute;inset:0 auto 0 0;background:#8E71E6;opacity:.28}.ds-chip b{position:relative;font-weight:400}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The base container for stats, rewards and exercises.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-cap\">STREAK</div><div class=\"ds-hero\">12</div></div>",
+      "css": ".ds-card{background:#26232E;border-radius:16px;padding:16px;width:200px;color:#E9E8EE}.ds-cap{font-size:12px;letter-spacing:.08em;color:#98979D}.ds-hero{font-size:56px;line-height:1;font-weight:500;color:#8E71E6}"
+    },
+    {
+      "name": "Icon Tile",
+      "kind": "custom",
+      "refersTo": "icon-tile",
+      "description": "Pause and skip icons on the Break screen.",
+      "html": "<button class=\"ds-tile\" aria-label=\"Pause\">II</button>",
+      "css": ".ds-tile{width:38px;height:38px;border:0;border-radius:16px;background:#19181E;color:#E9E8EE;font:inherit}.ds-tile:focus-visible{outline:2px solid #8E71E6}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Desk Companion",
+    "overview": "Sitness should feel like something on your side: soft, rounded and warm in tone, never a drill sergeant. The dark theme is the home theme: a near-black page tinted a tenth of the way toward the chosen accent, with grey cards that carry a trace of it too. One accent does all the talking. The ring and the timer lead on Home; everything else recedes.",
+    "keyCharacteristics": [
+      "One accent at a time (violet, teal, amber or coral), tinting page, greys and text.",
+      "A single 16px corner radius; circles only where the shape is a circle.",
+      "Flat tonal layers, no shadows.",
+      "Large tabular numerals for time and score.",
+      "Screens sit side by side (Stats, Home, Settings) and slide in from their side."
+    ],
+    "rules": [
+      { "name": "The One Accent Rule", "body": "Exactly one accent is on screen. It marks progress, the primary action and what is selected; it is never decoration.", "section": "colors" },
+      { "name": "The Tint Rule", "body": "Every dark grey carries 5-10% of the accent. Never use a neutral grey that ignores it.", "section": "colors" },
+      { "name": "The Dark-First Rule", "body": "Colour changes apply to the dark theme only unless the owner says otherwise.", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "Every changing number uses tabular figures so it does not jitter.", "section": "typography" },
+      { "name": "The Flat Rule", "body": "Surfaces stay flat at rest and in motion; new depth comes from a tonal step, never a drop shadow.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use var(--accent) for progress, the primary action and selection, and nothing else.",
+      "Do keep every radius at 16px, unless the shape is a circle.",
+      "Do tint any new grey with the accent, using the formulas in web/src/theme.ts.",
+      "Do keep touch targets at least 44px.",
+      "Do write messages in plain, kind words."
+    ],
+    "donts": [
+      "Don't add drop shadows or gradients.",
+      "Don't add a bottom navigation bar; screens sit left and right of Home.",
+      "Don't change the light theme's colours as a side effect of a dark-theme change.",
+      "Don't put text under 12px.",
+      "Don't shame or nag; the game layer rewards movement and never punishes."
+    ]
+  }
+}

@@ -154,14 +154,14 @@ and Settings then shows "All day" instead of a range.
 - *Track grey* (empty progress bars, borders, dots) = 95% of `#383838` + 5% accent (violet `#3C3B41`).
 - *Text* = `#EEEEEE` + 5% accent; *small text* = `#999999` + 5% accent (violet `#E9E8EE` and `#98979D`).
 - *Well* (icon buttons, tonal buttons, time-wheel band) = `#131313` + 5% accent (violet `#19181E`).
-- *Control grey* (Home ring track, Pause button, cards) = 95% of `#333333` + 5% accent, then darkened to 58.32% of its brightness.
+- *Control grey* (Home ring track, Pause button, cards) = 90% of `#1A1A1A` + 10% accent.
 
 | Accent | Hex | Background | Control grey |
 |--------|---------|-----------|-----------|
-| Violet | #8E71E6 | `#0E0B17` | `#202023` |
-| Teal   | #2FB6A0 | `#051210` | `#1E2221` |
-| Amber  | #D89C46 | `#161007` | `#23211E` |
-| Coral  | #EA6A50 | `#170B08` | `#231F1F` |
+| Violet | #8E71E6 | `#0E0B17` | `#26232E` |
+| Teal   | #2FB6A0 | `#051210` | `#1C2A27` |
+| Amber  | #D89C46 | `#161007` | `#2D271E` |
+| Coral  | #EA6A50 | `#170B08` | `#2F221F` |
 
 **Breaks happen at fixed times.** The day starts at **Start of day** and a break is due every
 *Remind me every* minutes from then, so the defaults (09:55 and 60 minutes) give 09:55, 10:55,
@@ -184,8 +184,8 @@ leaves one free miss. Each break uses part of its hour (the break itself, then w
 reward screen), so the countdown after one starts a few minutes short of 60.
 
 Settings are in collapsible groups (Rhythm, How it alerts you, During the break, Water, Goals and
-scoring, Appearance, Reliability, Data; one open at a time, Rhythm first). A line pinned under the
-title shows the effect of the interval and the day's hours as you change them, and a row that
+scoring, Appearance, Reliability, Data; one open at a time, Rhythm first). A "Your break times" card
+above them lists the times the interval and the day's hours produce, as you change them, and a row that
 depends on another says which setting to turn on. Sliders follow your finger smoothly and show
 the nearest step as a live number; on release the thumb glides to that step and the value is
 saved. Appearance also holds Interface size and Font (each option shown in its own typeface).

@@ -114,11 +114,6 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   const shown = slots.slice(0, 10).map(m => minuteOfDay(m, use24h))
   const schedule = shown.join(' · ') + (slots.length > shown.length ? ` · … (${slots.length} a day)` : '')
 
-  // The one-line summary pinned under the title, so the effect of the interval and the day's start and end stays in view.
-  // Same start and end means the whole day, so say that instead of showing a range like 09:55–09:55.
-  const hours = s.day_start === s.day_end ? 'All day' : `${minuteOfDay(s.day_start, use24h)}–${minuteOfDay(s.day_end, use24h)}`
-  // Each part stays whole when the line wraps: it may only break at the dots, never inside "Every 60 min".
-  const summaryParts = [`${slots.length} ${slots.length === 1 ? 'Break' : 'Breaks'} a day`, `Every ${s.interval_minutes} min`, hours]
   const save = (key: SettingKey, value: unknown) => {
     try {
       setS(api.setSetting(key, value))
@@ -240,13 +235,10 @@ export function SettingsScreen({ onChanged, onBack }: { onChanged: () => void; o
   return (
     <div className="page scrolling" {...swipe}>
       <PageTitle onBack={onBack}>Settings</PageTitle>
-      <div className="schedule-bar" aria-label="Current schedule">
-        {summaryParts.map((part, i) => <Fragment key={i}>{i > 0 && ' · '}<span className="nowrap">{part}</span></Fragment>)}
-      </div>
       <section className="card schedule">
         <div className="caption">YOUR BREAK TIMES</div>
         <div className="schedule-times">{schedule}</div>
-        <div className="dim small">Fixed times, the same every day. Pausing or snoozing never moves them.</div>
+        <div className="dim small">The same every day. Pause and snooze never move them.</div>
       </section>
       <Collapse accordion defaultActiveKey="Rhythm" className="settings-groups">
         {GROUPS.map(g => (

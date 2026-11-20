@@ -17,10 +17,10 @@ export function darkBackground(accentHex: string): string {
   return '#' + mix((n >> 16) & 255) + mix((n >> 8) & 255) + mix(n & 255)
 }
 
-/** The grey of the menu, ring track, Pause button and cards in dark mode: 95% of #333333 plus 5% of the accent, then 41.7% darker (x0.5832: 10% darker three times, then 20%). */
+/** The grey of the menu, ring track, Pause button and cards in dark mode: 90% of #1A1A1A plus 10% of the accent, a warmer card than the old 5% mix. */
 export function controlGrey(accentHex: string): string {
   const n = parseInt(accentHex.slice(1), 16)
-  const mix = (c: number) => Math.round((0x33 * 0.95 + c * 0.05) * 0.5832).toString(16).padStart(2, '0')
+  const mix = (c: number) => Math.round(0x1A * 0.9 + c * 0.1).toString(16).padStart(2, '0')
   return '#' + mix((n >> 16) & 255) + mix((n >> 8) & 255) + mix(n & 255)
 }
 

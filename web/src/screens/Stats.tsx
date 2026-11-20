@@ -45,13 +45,12 @@ export function Stats({ onBack }: { onBack: () => void }) {
       <div className="stats-col">
       <section className="card hero">
         <div className="hero-top">
-          <div className="caption">CURRENT STREAK</div>
+          {s.streak >= 2 ? <div className="roll">You're on a roll</div> : <div className="caption">CURRENT STREAK</div>}
           <button className="icon-btn" aria-label="How it works" onClick={() => setHelpOpen(true)}><QuestionCircleOutline /></button>
         </div>
         <div className="hero-row">
           <span className="hero-num">{s.streak}</span>
-          <span className="hero-unit">{s.streak === 1 ? 'day' : 'days'}</span>
-          <span className="dim small hero-best">Best {s.bestStreak}</span>
+          <span className="hero-unit">{s.streak === 1 ? 'day' : 'days'}</span>          <span className="dim small hero-best">Best {s.bestStreak}</span>
         </div>
         <div className="title">Level {s.level.level} · {s.level.title}</div>
         <div className="dim small">{s.xp} XP total · {s.level.into} / {s.level.span} to level {s.level.level + 1}</div>

@@ -36,8 +36,8 @@ export function subtitle(s: AppState): string {
   if (!s.showLine) return 'until next break'
   const { completed, goal } = s.today
   const nextTitleDiffers = s.level.nextTitle !== s.level.title
-  if (completed >= goal) return 'daily goal reached'
-  if (s.combo >= 3) return `combo x${s.combo} — keep it going`
+  if (completed >= goal) return 'daily goal reached, nicely done'
+  if (s.combo >= 3) return `you're on a ${s.combo}-break combo`
   if (s.level.toNext <= 40 && nextTitleDiffers) return `${s.level.toNext} XP from ${s.level.nextTitle}`
   if (s.level.toNext <= 40) return `${s.level.toNext} XP to level ${s.level.level + 1}`
   if (s.streak > 0) return `${goal - completed} more ${goal - completed === 1 ? 'break' : 'breaks'} to keep your streak`
