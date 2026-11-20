@@ -52,6 +52,12 @@ html[data-prefers-color-scheme='dark'] {
   --adm-color-border: var(--track);
 }
 
+/* 48px touch targets for the switch (drawn 31px high: an invisible extension above and below)
+   and for the Active-days chips (centred text in a 48px-high chip). */
+.adm-switch { position: relative; }
+.adm-switch::before { content: ''; position: absolute; inset: -9px 0; }
+.adm-selector .adm-selector-item { min-height: 48px; box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; }
+
 /* Dark selectors (Active days): white text; selected = accent, unselected = control grey. */
 html[data-prefers-color-scheme='dark'] .adm-selector {
   --color: var(--surface);
